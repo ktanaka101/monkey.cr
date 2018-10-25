@@ -1,0 +1,13 @@
+name: crysterpreter
+version: 0.1.0
+
+authors:
+  - Kentaro Tanaka <kentanaka101@gmail.com>
+
+targets:
+  crysterpreter:
+    main: src/crysterpreter.cr
+
+crystal: 0.26.1
+
+license: MIT
