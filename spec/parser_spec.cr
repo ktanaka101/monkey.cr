@@ -2,8 +2,8 @@ require "spec"
 require "../src/crysterpreter/parser.cr"
 
 record TestIdentifier, expected_identifier : String
-record TestPrefix, input : String, operator : String, integer_value : Int64
-record TestInfix, input : String, left_value : Int64, operator : String, right_value : Int64
+record TestPrefix, input : String, operator : String, value : Int64 | Bool
+record TestInfix, input : String, left_value : Int64 | Bool, operator : String, right_value : Int64 | Bool
 record TestOperatorPrecedence, input : String, expected : String
 
 describe Crysterpreter::Parser do
@@ -133,6 +133,8 @@ describe Crysterpreter::Parser do
     prefix_tests = [
       TestPrefix.new("!5;", "!", 5),
       TestPrefix.new("-15;", "-", 15),
+      TestPrefix.new("!true;", "!", true),
+      TestPrefix.new("!false;", "!", false),
     ]
 
     prefix_tests.each do |prefix|
@@ -151,7 +153,7 @@ describe Crysterpreter::Parser do
         exp.should be_a Crysterpreter::AST::PrefixExpression
         if exp.is_a?(Crysterpreter::AST::PrefixExpression)
           exp.operator.should eq prefix.operator
-          test_literal_expression(exp.right, prefix.integer_value)
+          test_literal_expression(exp.right, prefix.value)
         end
       end
     end
@@ -167,6 +169,9 @@ describe Crysterpreter::Parser do
       TestInfix.new("5 < 5;", 5, "<", 5),
       TestInfix.new("5 == 5;", 5, "==", 5),
       TestInfix.new("5 != 5;", 5, "!=", 5),
+      TestInfix.new("true == true;", true, "==", true),
+      TestInfix.new("true != false;", true, "!=", false),
+      TestInfix.new("false == false;", false, "==", false),
     ]
 
     infix_tests.each do |infix|
@@ -234,6 +239,22 @@ describe Crysterpreter::Parser do
       TestOperatorPrecedence.new(
         "3 + 4 * 5 == 3 * 1 + 4 * 5",
         "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"
+      ),
+      TestOperatorPrecedence.new(
+        "true",
+        "true"
+      ),
+      TestOperatorPrecedence.new(
+        "false",
+        "false"
+      ),
+      TestOperatorPrecedence.new(
+        "3 > 5 == false",
+        "((3 > 5) == false)"
+      ),
+      TestOperatorPrecedence.new(
+        "3 < 5 == true",
+        "((3 < 5) == true)"
       ),
     }
 
