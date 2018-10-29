@@ -184,6 +184,49 @@ module Crysterpreter::Parser
       end
     end
 
+    def parse_if_expression : AST::IfExpression?
+      token = @cur_token
+      return nil unless expect_peek(Token::LPAREN)
+
+      next_token
+      condition = parse_expression(Priority::LOWEST)
+
+      return nil if condition.nil?
+
+      return nil unless expect_peek(Token::RPAREN)
+
+      return nil unless expect_peek(Token::LBRACE)
+
+      consequence = parse_block_statement
+
+      alternative = if peek_token_is(Token::ELSE)
+                      next_token
+
+                      return nil unless expect_peek(Token::LBRACE)
+
+                      parse_block_statement
+                    else
+                      nil
+                    end
+
+      AST::IfExpression.new(token, condition, consequence, alternative)
+    end
+
+    def parse_block_statement : AST::BlockStatement
+      token = @cur_token
+      statements = [] of AST::Statement
+
+      next_token
+
+      while !cur_token_is(Token::RBRACE) && !cur_token_is(Token::EOF)
+        stmt = parse_statement
+        statements << stmt if stmt
+        next_token
+      end
+
+      AST::BlockStatement.new(token, statements)
+    end
+
     def cur_token_is(token : Token::TokenType) : Bool
       @cur_token.type == token
     end
@@ -218,6 +261,8 @@ module Crysterpreter::Parser
         ->parse_bool_literal
       when Token::LPAREN
         ->parse_grouped_expression
+      when Token::IF
+        ->parse_if_expression
       end
     end
 

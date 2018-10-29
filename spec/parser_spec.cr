@@ -288,6 +288,76 @@ describe Crysterpreter::Parser do
       actual.should eq test.expected
     end
   end
+
+  it "if expression" do
+    input = "if (x < y) { x }"
+
+    l = Crysterpreter::Lexer::Lexer.new(input)
+    parser = Crysterpreter::Parser::Parser.new(l)
+    program = parser.parse_program
+    check_parser_errors(parser)
+
+    program.statements.size.should eq 1
+
+    stmt = program.statements[0]
+    stmt.should be_a Crysterpreter::AST::ExpressionStatement
+    if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
+      exp = stmt.expression
+      exp.should be_a Crysterpreter::AST::IfExpression
+      if exp.is_a?(Crysterpreter::AST::IfExpression)
+        test_infix_expression(exp.condition, "x", "<", "y")
+        exp.consequence.statements.size.should eq 1
+        consequence = exp.consequence.statements[0]
+
+        consequence.should be_a Crysterpreter::AST::ExpressionStatement
+        if consequence.is_a?(Crysterpreter::AST::ExpressionStatement)
+          test_indentifier(consequence.expression, "x")
+
+          exp.alternative.should be_nil
+        end
+      end
+    end
+  end
+
+  it "if else expression" do
+    input = "if (x < y) { x } else { y }"
+
+    l = Crysterpreter::Lexer::Lexer.new(input)
+    parser = Crysterpreter::Parser::Parser.new(l)
+    program = parser.parse_program
+    check_parser_errors(parser)
+
+    program.statements.size.should eq 1
+
+    stmt = program.statements[0]
+    stmt.should be_a Crysterpreter::AST::ExpressionStatement
+    if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
+      exp = stmt.expression
+      exp.should be_a Crysterpreter::AST::IfExpression
+      if exp.is_a?(Crysterpreter::AST::IfExpression)
+        test_infix_expression(exp.condition, "x", "<", "y")
+        exp.consequence.statements.size.should eq 1
+        consequence = exp.consequence.statements[0]
+
+        consequence.should be_a Crysterpreter::AST::ExpressionStatement
+        if consequence.is_a?(Crysterpreter::AST::ExpressionStatement)
+          test_indentifier(consequence.expression, "x")
+        end
+
+        alt = exp.alternative
+        alt.should be_a Crysterpreter::AST::BlockStatement
+        if alt.is_a?(Crysterpreter::AST::BlockStatement)
+          alt.statements.size.should eq 1
+          alternative = alt.statements[0]
+
+          alternative.should be_a Crysterpreter::AST::ExpressionStatement
+          if alternative.is_a?(Crysterpreter::AST::ExpressionStatement)
+            test_indentifier(alternative.expression, "y")
+          end
+        end
+      end
+    end
+  end
 end
 
 def check_parser_errors(parser : Crysterpreter::Parser::Parser)

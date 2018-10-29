@@ -191,4 +191,49 @@ module Crysterpreter::AST
       @token.literal
     end
   end
+
+  class IfExpression < Expression
+    getter token : Token::Token, condition : Expression, consequence : BlockStatement, alternative : BlockStatement?
+
+    def initialize(@token, @condition, @consequence, @alternative)
+    end
+
+    def expression_node
+    end
+
+    def token_literal
+      @token.literal
+    end
+
+    def string
+      s = "if#{@condition.string} #{@consequence.string}"
+
+      alternative = @alternative
+      if alternative
+        s += "else #{alternative.string}"
+      end
+
+      s
+    end
+  end
+
+  class BlockStatement < Statement
+    getter token : Token::Token, statements : Array(Statement)
+
+    def initialize(@token, @statements)
+    end
+
+    def statement_node
+    end
+
+    def token_literal
+      @token.literal
+    end
+
+    def string
+      @statements.each_with_object("") do |stmt, str|
+        str += stmt.string
+      end
+    end
+  end
 end
