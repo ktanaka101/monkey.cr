@@ -145,6 +145,15 @@ module Crysterpreter::Parser
       AST::Boolean.new(@cur_token, cur_token_is(Token::TRUE))
     end
 
+    def parse_grouped_expression : AST::Expression?
+      next_token
+
+      exp = parse_expression(Priority::LOWEST)
+      return nil unless expect_peek(Token::RPAREN)
+
+      exp
+    end
+
     def parse_prefix_expression : AST::PrefixExpression?
       token = @cur_token
       ope = @cur_token.literal
@@ -207,6 +216,8 @@ module Crysterpreter::Parser
         ->parse_prefix_expression
       when Token::TRUE, Token::FALSE
         ->parse_bool_literal
+      when Token::LPAREN
+        ->parse_grouped_expression
       end
     end
 

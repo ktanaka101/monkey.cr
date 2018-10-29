@@ -256,6 +256,26 @@ describe Crysterpreter::Parser do
         "3 < 5 == true",
         "((3 < 5) == true)"
       ),
+      TestOperatorPrecedence.new(
+        "1 + (2 + 3) + 4",
+        "((1 + (2 + 3)) + 4)"
+      ),
+      TestOperatorPrecedence.new(
+        "(5 + 5) * 2",
+        "((5 + 5) * 2)"
+      ),
+      TestOperatorPrecedence.new(
+        "2 / (5 + 5)",
+        "(2 / (5 + 5))"
+      ),
+      TestOperatorPrecedence.new(
+        "-(5 + 5)",
+        "(-(5 + 5))"
+      ),
+      TestOperatorPrecedence.new(
+        "!(true == true)",
+        "(!(true == true))"
+      ),
     }
 
     tests.each do |test|
