@@ -227,6 +227,46 @@ module Crysterpreter::Parser
       AST::BlockStatement.new(token, statements)
     end
 
+    def parse_function_literal : AST::FunctionLiteral?
+      token = @cur_token
+
+      return nil unless expect_peek(Token::LPAREN)
+
+      params = parse_function_parameters
+
+      return nil if params.nil?
+      return nil unless expect_peek(Token::LBRACE)
+
+      body = parse_block_statement
+
+      AST::FunctionLiteral.new(token, params, body)
+    end
+
+    def parse_function_parameters : Array(AST::Identifier)?
+      identifiers = [] of AST::Identifier
+
+      if peek_token_is(Token::RPAREN)
+        next_token
+        return identifiers
+      end
+
+      next_token
+
+      ident = AST::Identifier.new(@cur_token, @cur_token.literal)
+      identifiers << ident
+
+      while peek_token_is(Token::COMMA)
+        next_token
+        next_token
+        ident = AST::Identifier.new(@cur_token, @cur_token.literal)
+        identifiers << ident
+      end
+
+      return nil unless expect_peek(Token::RPAREN)
+
+      identifiers
+    end
+
     def cur_token_is(token : Token::TokenType) : Bool
       @cur_token.type == token
     end
@@ -263,6 +303,8 @@ module Crysterpreter::Parser
         ->parse_grouped_expression
       when Token::IF
         ->parse_if_expression
+      when Token::FUNCTION
+        ->parse_function_literal
       end
     end
 

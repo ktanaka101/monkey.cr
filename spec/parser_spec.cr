@@ -5,6 +5,7 @@ record TestIdentifier, expected_identifier : String
 record TestPrefix, input : String, operator : String, value : Int64 | Bool
 record TestInfix, input : String, left_value : Int64 | Bool, operator : String, right_value : Int64 | Bool
 record TestOperatorPrecedence, input : String, expected : String
+record TestFunctionParameter, input : String, expected_params : Array(String)
 
 describe Crysterpreter::Parser do
   it "let statements" do
@@ -353,6 +354,66 @@ describe Crysterpreter::Parser do
           alternative.should be_a Crysterpreter::AST::ExpressionStatement
           if alternative.is_a?(Crysterpreter::AST::ExpressionStatement)
             test_indentifier(alternative.expression, "y")
+          end
+        end
+      end
+    end
+  end
+
+  it "function literal parsing" do
+    input = "fn(x, y) { x + y; }"
+
+    l = Crysterpreter::Lexer::Lexer.new(input)
+    parser = Crysterpreter::Parser::Parser.new(l)
+    program = parser.parse_program
+    check_parser_errors(parser)
+
+    program.statements.size.should eq 1
+
+    stmt = program.statements[0]
+    stmt.should be_a Crysterpreter::AST::ExpressionStatement
+    if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
+      exp = stmt.expression
+      exp.should be_a Crysterpreter::AST::FunctionLiteral
+      if exp.is_a?(Crysterpreter::AST::FunctionLiteral)
+        exp.parameters.size.should eq 2
+
+        test_literal_expression(exp.parameters[0], "x")
+        test_literal_expression(exp.parameters[1], "y")
+
+        exp.body.statements.size.should eq 1
+        body_stmt = exp.body.statements[0]
+        body_stmt.should be_a Crysterpreter::AST::ExpressionStatement
+        if body_stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
+          test_infix_expression(body_stmt.expression, "x", "+", "y")
+        end
+      end
+    end
+  end
+
+  it "function parameter parsing" do
+    tests = {
+      TestFunctionParameter.new("fn() {};", [] of String),
+      TestFunctionParameter.new("fn(x) {};", ["x"]),
+      TestFunctionParameter.new("fn(x, y, z) {};", ["x", "y", "z"]),
+    }
+
+    tests.each do |test|
+      l = Crysterpreter::Lexer::Lexer.new(test.input)
+      parser = Crysterpreter::Parser::Parser.new(l)
+      program = parser.parse_program
+      check_parser_errors(parser)
+
+      stmt = program.statements[0]
+      if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
+        function = stmt.expression
+
+        function.should be_a Crysterpreter::AST::FunctionLiteral
+        if function.is_a?(Crysterpreter::AST::FunctionLiteral)
+          function.parameters.size.should eq test.expected_params.size
+
+          test.expected_params.each_with_index do |ident, i|
+            test_literal_expression(function.parameters[i], ident)
           end
         end
       end

@@ -236,4 +236,22 @@ module Crysterpreter::AST
       end
     end
   end
+
+  class FunctionLiteral < Expression
+    getter token : Token::Token, parameters : Array(Identifier), body : BlockStatement
+
+    def initialize(@token, @parameters, @body)
+    end
+
+    def expression_node
+    end
+
+    def token_literal
+      @token.literal
+    end
+
+    def string
+      "#{token_literal}(#{@parameters.map(&.string).join(", ")}) #{@body.string}"
+    end
+  end
 end
