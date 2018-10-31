@@ -1,4 +1,4 @@
-require "spec"
+require "../spec_helper"
 require "../../src/crysterpreter/parser.cr"
 
 record TestIdentifier, expected_identifier : String
