@@ -7,116 +7,79 @@ record TestInfix, input : String, left_value : Int64 | Bool, operator : String, 
 record TestOperatorPrecedence, input : String, expected : String
 record TestFunctionParameter, input : String, expected_params : Array(String)
 
-describe Crysterpreter::Parser do
-  it "let statements" do
-    inputs = <<-STRING
+module Crysterpreter::Parser
+  describe Parser do
+    it "let statements" do
+      inputs = <<-STRING
       let x = 5;
       let y = 10;
       let foobar = 838383;
     STRING
 
-    lexer = Crysterpreter::Lexer::Lexer.new(inputs)
-    parser = Crysterpreter::Parser::Parser.new(lexer)
+      lexer = Crysterpreter::Lexer::Lexer.new(inputs)
+      parser = Parser.new(lexer)
 
-    program = parser.parse_program
-    check_parser_errors(parser)
-    program.should_not be_nil
-    program.statements.size.should eq 3
+      program = parser.parse_program
+      check_parser_errors(parser)
+      program.should_not be_nil
+      program.statements.size.should eq 3
 
-    tests = [
-      TestIdentifier.new("x"),
-      TestIdentifier.new("y"),
-      TestIdentifier.new("foobar"),
-    ]
+      tests = [
+        TestIdentifier.new("x"),
+        TestIdentifier.new("y"),
+        TestIdentifier.new("foobar"),
+      ]
 
-    tests.each_with_index do |test, i|
-      test_let_statement(program.statements[i], test.expected_identifier)
+      tests.each_with_index do |test, i|
+        test_let_statement(program.statements[i], test.expected_identifier)
+      end
     end
-  end
 
-  it "return statements" do
-    inputs = <<-STRING
+    it "return statements" do
+      inputs = <<-STRING
       return 5;
       return 10;
       return 993322;
     STRING
 
-    lexer = Crysterpreter::Lexer::Lexer.new(inputs)
-    parser = Crysterpreter::Parser::Parser.new(lexer)
+      lexer = Crysterpreter::Lexer::Lexer.new(inputs)
+      parser = Parser.new(lexer)
 
-    program = parser.parse_program
-    check_parser_errors(parser)
-    program.should_not be_nil
-    program.statements.size.should eq 3
+      program = parser.parse_program
+      check_parser_errors(parser)
+      program.should_not be_nil
+      program.statements.size.should eq 3
 
-    program.statements.each do |stmt|
-      stmt.should_not be_nil
-      stmt.should be_a Crysterpreter::AST::ReturnStatement
-      stmt.token_literal.should eq "return"
+      program.statements.each do |stmt|
+        stmt.should_not be_nil
+        stmt.should be_a Crysterpreter::AST::ReturnStatement
+        stmt.token_literal.should eq "return"
+      end
     end
-  end
 
-  it "string" do
-    program = Crysterpreter::AST::Program.new([
-      Crysterpreter::AST::LetStatement.new(
-        Crysterpreter::Token::Token.new(Crysterpreter::Token::LET, "let"),
-        Crysterpreter::AST::Identifier.new(
-          Crysterpreter::Token::Token.new(Crysterpreter::Token::IDENT, "myVar"),
-          "myVar"
+    it "string" do
+      program = Crysterpreter::AST::Program.new([
+        Crysterpreter::AST::LetStatement.new(
+          Crysterpreter::Token::Token.new(Crysterpreter::Token::LET, "let"),
+          Crysterpreter::AST::Identifier.new(
+            Crysterpreter::Token::Token.new(Crysterpreter::Token::IDENT, "myVar"),
+            "myVar"
+          ),
+          Crysterpreter::AST::Identifier.new(
+            Crysterpreter::Token::Token.new(Crysterpreter::Token::IDENT, "anotherVar"),
+            "anotherVar"
+          ),
         ),
-        Crysterpreter::AST::Identifier.new(
-          Crysterpreter::Token::Token.new(Crysterpreter::Token::IDENT, "anotherVar"),
-          "anotherVar"
-        ),
-      ),
-    ] of Crysterpreter::AST::Statement)
+      ] of Crysterpreter::AST::Statement)
 
-    program.string.should eq "let myVar = anotherVar;"
-  end
-
-  it "identifier expression" do
-    inputs = "foobar"
-
-    lexer = Crysterpreter::Lexer::Lexer.new(inputs)
-    parser = Crysterpreter::Parser::Parser.new(lexer)
-    program = parser.parse_program
-    check_parser_errors(parser)
-
-    program.statements.size.should eq 1
-    stmt = program.statements[0]
-
-    stmt.should be_a Crysterpreter::AST::ExpressionStatement
-    if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
-      test_literal_expression(stmt.expression, "foobar")
+      program.string.should eq "let myVar = anotherVar;"
     end
-  end
 
-  it "integer literal" do
-    input = "5;"
+    it "identifier expression" do
+      inputs = "foobar"
 
-    lexer = Crysterpreter::Lexer::Lexer.new(input)
-    parser = Crysterpreter::Parser::Parser.new(lexer)
-    program = parser.parse_program
-    check_parser_errors(parser)
-
-    program.statements.size.should eq 1
-    stmt = program.statements[0]
-
-    stmt.should be_a Crysterpreter::AST::ExpressionStatement
-    if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
-      test_literal_expression(stmt.expression, 5)
-    end
-  end
-
-  it "test boolean" do
-    tests = [
-      {"true;", true},
-      {"false;", false},
-    ]
-
-    tests.each do |test|
-      l = Crysterpreter::Lexer::Lexer.new(test[0])
-      parser = Crysterpreter::Parser::Parser.new(l)
+      lexer = Crysterpreter::Lexer::Lexer.new(inputs)
+      parser = Parser.new(lexer)
       program = parser.parse_program
       check_parser_errors(parser)
 
@@ -125,22 +88,214 @@ describe Crysterpreter::Parser do
 
       stmt.should be_a Crysterpreter::AST::ExpressionStatement
       if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
-        test_literal_expression(stmt.expression, test[1])
+        test_literal_expression(stmt.expression, "foobar")
       end
     end
-  end
 
-  it "parsing prefix expressions" do
-    prefix_tests = [
-      TestPrefix.new("!5;", "!", 5),
-      TestPrefix.new("-15;", "-", 15),
-      TestPrefix.new("!true;", "!", true),
-      TestPrefix.new("!false;", "!", false),
-    ]
+    it "integer literal" do
+      input = "5;"
 
-    prefix_tests.each do |prefix|
-      l = Crysterpreter::Lexer::Lexer.new(prefix.input)
-      parser = Crysterpreter::Parser::Parser.new(l)
+      lexer = Crysterpreter::Lexer::Lexer.new(input)
+      parser = Parser.new(lexer)
+      program = parser.parse_program
+      check_parser_errors(parser)
+
+      program.statements.size.should eq 1
+      stmt = program.statements[0]
+
+      stmt.should be_a Crysterpreter::AST::ExpressionStatement
+      if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
+        test_literal_expression(stmt.expression, 5)
+      end
+    end
+
+    it "test boolean" do
+      tests = [
+        {"true;", true},
+        {"false;", false},
+      ]
+
+      tests.each do |test|
+        l = Crysterpreter::Lexer::Lexer.new(test[0])
+        parser = Parser.new(l)
+        program = parser.parse_program
+        check_parser_errors(parser)
+
+        program.statements.size.should eq 1
+        stmt = program.statements[0]
+
+        stmt.should be_a Crysterpreter::AST::ExpressionStatement
+        if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
+          test_literal_expression(stmt.expression, test[1])
+        end
+      end
+    end
+
+    it "parsing prefix expressions" do
+      prefix_tests = [
+        TestPrefix.new("!5;", "!", 5),
+        TestPrefix.new("-15;", "-", 15),
+        TestPrefix.new("!true;", "!", true),
+        TestPrefix.new("!false;", "!", false),
+      ]
+
+      prefix_tests.each do |prefix|
+        l = Crysterpreter::Lexer::Lexer.new(prefix.input)
+        parser = Parser.new(l)
+        program = parser.parse_program
+        check_parser_errors(parser)
+
+        program.statements.size.should eq 1
+
+        stmt = program.statements[0]
+        stmt.should be_a Crysterpreter::AST::ExpressionStatement
+        if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
+          exp = stmt.expression
+
+          exp.should be_a Crysterpreter::AST::PrefixExpression
+          if exp.is_a?(Crysterpreter::AST::PrefixExpression)
+            exp.operator.should eq prefix.operator
+            test_literal_expression(exp.right, prefix.value)
+          end
+        end
+      end
+    end
+
+    it "parsing infix expressions" do
+      infix_tests = [
+        TestInfix.new("5 + 5;", 5, "+", 5),
+        TestInfix.new("5 - 5;", 5, "-", 5),
+        TestInfix.new("5 * 5;", 5, "*", 5),
+        TestInfix.new("5 / 5;", 5, "/", 5),
+        TestInfix.new("5 > 5;", 5, ">", 5),
+        TestInfix.new("5 < 5;", 5, "<", 5),
+        TestInfix.new("5 == 5;", 5, "==", 5),
+        TestInfix.new("5 != 5;", 5, "!=", 5),
+        TestInfix.new("true == true;", true, "==", true),
+        TestInfix.new("true != false;", true, "!=", false),
+        TestInfix.new("false == false;", false, "==", false),
+      ]
+
+      infix_tests.each do |infix|
+        l = Crysterpreter::Lexer::Lexer.new(infix.input)
+        parser = Parser.new(l)
+        program = parser.parse_program
+        check_parser_errors(parser)
+
+        program.statements.size.should eq 1
+
+        stmt = program.statements[0]
+        stmt.should be_a Crysterpreter::AST::ExpressionStatement
+        if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
+          test_infix_expression(stmt.expression, infix.left_value, infix.operator, infix.right_value)
+        end
+      end
+    end
+
+    it "operator precedence parsing" do
+      tests = {
+        TestOperatorPrecedence.new(
+          "-a * b",
+          "((-a) * b)"
+        ),
+        TestOperatorPrecedence.new(
+          "!-a",
+          "(!(-a))"
+        ),
+        TestOperatorPrecedence.new(
+          "a + b + c",
+          "((a + b) + c)"
+        ),
+        TestOperatorPrecedence.new(
+          "a + b - c",
+          "((a + b) - c)"
+        ),
+        TestOperatorPrecedence.new(
+          "a * b * c",
+          "((a * b) * c)"
+        ),
+        TestOperatorPrecedence.new(
+          "a * b / c",
+          "((a * b) / c)"
+        ),
+        TestOperatorPrecedence.new(
+          "a + b / c",
+          "(a + (b / c))"
+        ),
+        TestOperatorPrecedence.new(
+          "a + b * c + d / e - f",
+          "(((a + (b * c)) + (d / e)) - f)"
+        ),
+        TestOperatorPrecedence.new(
+          "3 + 4; -5 * 5",
+          "(3 + 4)((-5) * 5)"
+        ),
+        TestOperatorPrecedence.new(
+          "5 > 4 == 3 < 4",
+          "((5 > 4) == (3 < 4))"
+        ),
+        TestOperatorPrecedence.new(
+          "5 < 4 != 3 > 4",
+          "((5 < 4) != (3 > 4))"
+        ),
+        TestOperatorPrecedence.new(
+          "3 + 4 * 5 == 3 * 1 + 4 * 5",
+          "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"
+        ),
+        TestOperatorPrecedence.new(
+          "true",
+          "true"
+        ),
+        TestOperatorPrecedence.new(
+          "false",
+          "false"
+        ),
+        TestOperatorPrecedence.new(
+          "3 > 5 == false",
+          "((3 > 5) == false)"
+        ),
+        TestOperatorPrecedence.new(
+          "3 < 5 == true",
+          "((3 < 5) == true)"
+        ),
+        TestOperatorPrecedence.new(
+          "1 + (2 + 3) + 4",
+          "((1 + (2 + 3)) + 4)"
+        ),
+        TestOperatorPrecedence.new(
+          "(5 + 5) * 2",
+          "((5 + 5) * 2)"
+        ),
+        TestOperatorPrecedence.new(
+          "2 / (5 + 5)",
+          "(2 / (5 + 5))"
+        ),
+        TestOperatorPrecedence.new(
+          "-(5 + 5)",
+          "(-(5 + 5))"
+        ),
+        TestOperatorPrecedence.new(
+          "!(true == true)",
+          "(!(true == true))"
+        ),
+      }
+
+      tests.each do |test|
+        l = Crysterpreter::Lexer::Lexer.new(test.input)
+        parser = Parser.new(l)
+        program = parser.parse_program
+        check_parser_errors(parser)
+
+        actual = program.string
+        actual.should eq test.expected
+      end
+    end
+
+    it "if expression" do
+      input = "if (x < y) { x }"
+
+      l = Crysterpreter::Lexer::Lexer.new(input)
+      parser = Parser.new(l)
       program = parser.parse_program
       check_parser_errors(parser)
 
@@ -150,34 +305,27 @@ describe Crysterpreter::Parser do
       stmt.should be_a Crysterpreter::AST::ExpressionStatement
       if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
         exp = stmt.expression
+        exp.should be_a Crysterpreter::AST::IfExpression
+        if exp.is_a?(Crysterpreter::AST::IfExpression)
+          test_infix_expression(exp.condition, "x", "<", "y")
+          exp.consequence.statements.size.should eq 1
+          consequence = exp.consequence.statements[0]
 
-        exp.should be_a Crysterpreter::AST::PrefixExpression
-        if exp.is_a?(Crysterpreter::AST::PrefixExpression)
-          exp.operator.should eq prefix.operator
-          test_literal_expression(exp.right, prefix.value)
+          consequence.should be_a Crysterpreter::AST::ExpressionStatement
+          if consequence.is_a?(Crysterpreter::AST::ExpressionStatement)
+            test_indentifier(consequence.expression, "x")
+
+            exp.alternative.should be_nil
+          end
         end
       end
     end
-  end
 
-  it "parsing infix expressions" do
-    infix_tests = [
-      TestInfix.new("5 + 5;", 5, "+", 5),
-      TestInfix.new("5 - 5;", 5, "-", 5),
-      TestInfix.new("5 * 5;", 5, "*", 5),
-      TestInfix.new("5 / 5;", 5, "/", 5),
-      TestInfix.new("5 > 5;", 5, ">", 5),
-      TestInfix.new("5 < 5;", 5, "<", 5),
-      TestInfix.new("5 == 5;", 5, "==", 5),
-      TestInfix.new("5 != 5;", 5, "!=", 5),
-      TestInfix.new("true == true;", true, "==", true),
-      TestInfix.new("true != false;", true, "!=", false),
-      TestInfix.new("false == false;", false, "==", false),
-    ]
+    it "if else expression" do
+      input = "if (x < y) { x } else { y }"
 
-    infix_tests.each do |infix|
-      l = Crysterpreter::Lexer::Lexer.new(infix.input)
-      parser = Crysterpreter::Parser::Parser.new(l)
+      l = Crysterpreter::Lexer::Lexer.new(input)
+      parser = Parser.new(l)
       program = parser.parse_program
       check_parser_errors(parser)
 
@@ -186,234 +334,88 @@ describe Crysterpreter::Parser do
       stmt = program.statements[0]
       stmt.should be_a Crysterpreter::AST::ExpressionStatement
       if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
-        test_infix_expression(stmt.expression, infix.left_value, infix.operator, infix.right_value)
-      end
-    end
-  end
+        exp = stmt.expression
+        exp.should be_a Crysterpreter::AST::IfExpression
+        if exp.is_a?(Crysterpreter::AST::IfExpression)
+          test_infix_expression(exp.condition, "x", "<", "y")
+          exp.consequence.statements.size.should eq 1
+          consequence = exp.consequence.statements[0]
 
-  it "operator precedence parsing" do
-    tests = {
-      TestOperatorPrecedence.new(
-        "-a * b",
-        "((-a) * b)"
-      ),
-      TestOperatorPrecedence.new(
-        "!-a",
-        "(!(-a))"
-      ),
-      TestOperatorPrecedence.new(
-        "a + b + c",
-        "((a + b) + c)"
-      ),
-      TestOperatorPrecedence.new(
-        "a + b - c",
-        "((a + b) - c)"
-      ),
-      TestOperatorPrecedence.new(
-        "a * b * c",
-        "((a * b) * c)"
-      ),
-      TestOperatorPrecedence.new(
-        "a * b / c",
-        "((a * b) / c)"
-      ),
-      TestOperatorPrecedence.new(
-        "a + b / c",
-        "(a + (b / c))"
-      ),
-      TestOperatorPrecedence.new(
-        "a + b * c + d / e - f",
-        "(((a + (b * c)) + (d / e)) - f)"
-      ),
-      TestOperatorPrecedence.new(
-        "3 + 4; -5 * 5",
-        "(3 + 4)((-5) * 5)"
-      ),
-      TestOperatorPrecedence.new(
-        "5 > 4 == 3 < 4",
-        "((5 > 4) == (3 < 4))"
-      ),
-      TestOperatorPrecedence.new(
-        "5 < 4 != 3 > 4",
-        "((5 < 4) != (3 > 4))"
-      ),
-      TestOperatorPrecedence.new(
-        "3 + 4 * 5 == 3 * 1 + 4 * 5",
-        "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"
-      ),
-      TestOperatorPrecedence.new(
-        "true",
-        "true"
-      ),
-      TestOperatorPrecedence.new(
-        "false",
-        "false"
-      ),
-      TestOperatorPrecedence.new(
-        "3 > 5 == false",
-        "((3 > 5) == false)"
-      ),
-      TestOperatorPrecedence.new(
-        "3 < 5 == true",
-        "((3 < 5) == true)"
-      ),
-      TestOperatorPrecedence.new(
-        "1 + (2 + 3) + 4",
-        "((1 + (2 + 3)) + 4)"
-      ),
-      TestOperatorPrecedence.new(
-        "(5 + 5) * 2",
-        "((5 + 5) * 2)"
-      ),
-      TestOperatorPrecedence.new(
-        "2 / (5 + 5)",
-        "(2 / (5 + 5))"
-      ),
-      TestOperatorPrecedence.new(
-        "-(5 + 5)",
-        "(-(5 + 5))"
-      ),
-      TestOperatorPrecedence.new(
-        "!(true == true)",
-        "(!(true == true))"
-      ),
-    }
+          consequence.should be_a Crysterpreter::AST::ExpressionStatement
+          if consequence.is_a?(Crysterpreter::AST::ExpressionStatement)
+            test_indentifier(consequence.expression, "x")
+          end
 
-    tests.each do |test|
-      l = Crysterpreter::Lexer::Lexer.new(test.input)
-      parser = Crysterpreter::Parser::Parser.new(l)
-      program = parser.parse_program
-      check_parser_errors(parser)
+          alt = exp.alternative
+          alt.should be_a Crysterpreter::AST::BlockStatement
+          if alt.is_a?(Crysterpreter::AST::BlockStatement)
+            alt.statements.size.should eq 1
+            alternative = alt.statements[0]
 
-      actual = program.string
-      actual.should eq test.expected
-    end
-  end
-
-  it "if expression" do
-    input = "if (x < y) { x }"
-
-    l = Crysterpreter::Lexer::Lexer.new(input)
-    parser = Crysterpreter::Parser::Parser.new(l)
-    program = parser.parse_program
-    check_parser_errors(parser)
-
-    program.statements.size.should eq 1
-
-    stmt = program.statements[0]
-    stmt.should be_a Crysterpreter::AST::ExpressionStatement
-    if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
-      exp = stmt.expression
-      exp.should be_a Crysterpreter::AST::IfExpression
-      if exp.is_a?(Crysterpreter::AST::IfExpression)
-        test_infix_expression(exp.condition, "x", "<", "y")
-        exp.consequence.statements.size.should eq 1
-        consequence = exp.consequence.statements[0]
-
-        consequence.should be_a Crysterpreter::AST::ExpressionStatement
-        if consequence.is_a?(Crysterpreter::AST::ExpressionStatement)
-          test_indentifier(consequence.expression, "x")
-
-          exp.alternative.should be_nil
-        end
-      end
-    end
-  end
-
-  it "if else expression" do
-    input = "if (x < y) { x } else { y }"
-
-    l = Crysterpreter::Lexer::Lexer.new(input)
-    parser = Crysterpreter::Parser::Parser.new(l)
-    program = parser.parse_program
-    check_parser_errors(parser)
-
-    program.statements.size.should eq 1
-
-    stmt = program.statements[0]
-    stmt.should be_a Crysterpreter::AST::ExpressionStatement
-    if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
-      exp = stmt.expression
-      exp.should be_a Crysterpreter::AST::IfExpression
-      if exp.is_a?(Crysterpreter::AST::IfExpression)
-        test_infix_expression(exp.condition, "x", "<", "y")
-        exp.consequence.statements.size.should eq 1
-        consequence = exp.consequence.statements[0]
-
-        consequence.should be_a Crysterpreter::AST::ExpressionStatement
-        if consequence.is_a?(Crysterpreter::AST::ExpressionStatement)
-          test_indentifier(consequence.expression, "x")
-        end
-
-        alt = exp.alternative
-        alt.should be_a Crysterpreter::AST::BlockStatement
-        if alt.is_a?(Crysterpreter::AST::BlockStatement)
-          alt.statements.size.should eq 1
-          alternative = alt.statements[0]
-
-          alternative.should be_a Crysterpreter::AST::ExpressionStatement
-          if alternative.is_a?(Crysterpreter::AST::ExpressionStatement)
-            test_indentifier(alternative.expression, "y")
+            alternative.should be_a Crysterpreter::AST::ExpressionStatement
+            if alternative.is_a?(Crysterpreter::AST::ExpressionStatement)
+              test_indentifier(alternative.expression, "y")
+            end
           end
         end
       end
     end
-  end
 
-  it "function literal parsing" do
-    input = "fn(x, y) { x + y; }"
+    it "function literal parsing" do
+      input = "fn(x, y) { x + y; }"
 
-    l = Crysterpreter::Lexer::Lexer.new(input)
-    parser = Crysterpreter::Parser::Parser.new(l)
-    program = parser.parse_program
-    check_parser_errors(parser)
-
-    program.statements.size.should eq 1
-
-    stmt = program.statements[0]
-    stmt.should be_a Crysterpreter::AST::ExpressionStatement
-    if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
-      exp = stmt.expression
-      exp.should be_a Crysterpreter::AST::FunctionLiteral
-      if exp.is_a?(Crysterpreter::AST::FunctionLiteral)
-        exp.parameters.size.should eq 2
-
-        test_literal_expression(exp.parameters[0], "x")
-        test_literal_expression(exp.parameters[1], "y")
-
-        exp.body.statements.size.should eq 1
-        body_stmt = exp.body.statements[0]
-        body_stmt.should be_a Crysterpreter::AST::ExpressionStatement
-        if body_stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
-          test_infix_expression(body_stmt.expression, "x", "+", "y")
-        end
-      end
-    end
-  end
-
-  it "function parameter parsing" do
-    tests = {
-      TestFunctionParameter.new("fn() {};", [] of String),
-      TestFunctionParameter.new("fn(x) {};", ["x"]),
-      TestFunctionParameter.new("fn(x, y, z) {};", ["x", "y", "z"]),
-    }
-
-    tests.each do |test|
-      l = Crysterpreter::Lexer::Lexer.new(test.input)
-      parser = Crysterpreter::Parser::Parser.new(l)
+      l = Crysterpreter::Lexer::Lexer.new(input)
+      parser = Parser.new(l)
       program = parser.parse_program
       check_parser_errors(parser)
 
+      program.statements.size.should eq 1
+
       stmt = program.statements[0]
+      stmt.should be_a Crysterpreter::AST::ExpressionStatement
       if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
-        function = stmt.expression
+        exp = stmt.expression
+        exp.should be_a Crysterpreter::AST::FunctionLiteral
+        if exp.is_a?(Crysterpreter::AST::FunctionLiteral)
+          exp.parameters.size.should eq 2
 
-        function.should be_a Crysterpreter::AST::FunctionLiteral
-        if function.is_a?(Crysterpreter::AST::FunctionLiteral)
-          function.parameters.size.should eq test.expected_params.size
+          test_literal_expression(exp.parameters[0], "x")
+          test_literal_expression(exp.parameters[1], "y")
 
-          test.expected_params.each_with_index do |ident, i|
-            test_literal_expression(function.parameters[i], ident)
+          exp.body.statements.size.should eq 1
+          body_stmt = exp.body.statements[0]
+          body_stmt.should be_a Crysterpreter::AST::ExpressionStatement
+          if body_stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
+            test_infix_expression(body_stmt.expression, "x", "+", "y")
+          end
+        end
+      end
+    end
+
+    it "function parameter parsing" do
+      tests = {
+        TestFunctionParameter.new("fn() {};", [] of String),
+        TestFunctionParameter.new("fn(x) {};", ["x"]),
+        TestFunctionParameter.new("fn(x, y, z) {};", ["x", "y", "z"]),
+      }
+
+      tests.each do |test|
+        l = Crysterpreter::Lexer::Lexer.new(test.input)
+        parser = Parser.new(l)
+        program = parser.parse_program
+        check_parser_errors(parser)
+
+        stmt = program.statements[0]
+        if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
+          function = stmt.expression
+
+          function.should be_a Crysterpreter::AST::FunctionLiteral
+          if function.is_a?(Crysterpreter::AST::FunctionLiteral)
+            function.parameters.size.should eq test.expected_params.size
+
+            test.expected_params.each_with_index do |ident, i|
+              test_literal_expression(function.parameters[i], ident)
+            end
           end
         end
       end
