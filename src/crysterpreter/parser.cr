@@ -25,6 +25,7 @@ module Crysterpreter::Parser
       Token::MINUS    => Priority::SUM,
       Token::SLASH    => Priority::PRODUCT,
       Token::ASTERISK => Priority::PRODUCT,
+      Token::LPAREN   => Priority::CALL,
     }
 
     def initialize(@lexer, @errors = [] of String)
@@ -267,6 +268,40 @@ module Crysterpreter::Parser
       identifiers
     end
 
+    def parse_call_expression(function : AST::Expression) : AST::CallExpression?
+      token = @cur_token
+      arguments = parse_call_arguments
+      return nil if arguments.nil?
+
+      AST::CallExpression.new(token, function, arguments)
+    end
+
+    def parse_call_arguments : Array(AST::Expression)?
+      args = [] of AST::Expression
+
+      if peek_token_is(Token::RPAREN)
+        next_token
+        return args
+      end
+
+      next_token
+      exp = parse_expression(Priority::LOWEST)
+      return nil if exp.nil?
+      args << exp
+
+      while peek_token_is(Token::COMMA)
+        next_token
+        next_token
+        exp = parse_expression(Priority::LOWEST)
+        return nil if exp.nil?
+        args << exp
+      end
+
+      return nil unless expect_peek(Token::RPAREN)
+
+      args
+    end
+
     def cur_token_is(token : Token::TokenType) : Bool
       @cur_token.type == token
     end
@@ -312,6 +347,8 @@ module Crysterpreter::Parser
       case key
       when Token::PLUS, Token::MINUS, Token::SLASH, Token::ASTERISK, Token::EQ, Token::NOT_EQ, Token::LT, Token::GT
         ->parse_infix_expression(AST::Expression)
+      when Token::LPAREN
+        ->parse_call_expression(AST::Expression)
       end
     end
 

@@ -278,6 +278,18 @@ module Crysterpreter::Parser
           "!(true == true)",
           "(!(true == true))"
         ),
+        TestOperatorPrecedence.new(
+          "a + add(b * c) + d",
+          "((a + add((b * c))) + d)"
+        ),
+        TestOperatorPrecedence.new(
+          "add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))",
+          "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))"
+        ),
+        TestOperatorPrecedence.new(
+          "add(a + b + c * d / f  + g)",
+          "add((((a + b) + ((c * d) / f)) + g))"
+        ),
       }
 
       tests.each do |test|
@@ -417,6 +429,31 @@ module Crysterpreter::Parser
               test_literal_expression(function.parameters[i], ident)
             end
           end
+        end
+      end
+    end
+
+    it "call expression parsing" do
+      input = "add(1, 2 * 3, 4 + 5);"
+
+      l = Crysterpreter::Lexer::Lexer.new(input)
+      parser = Parser.new(l)
+      program = parser.parse_program
+      check_parser_errors(parser)
+
+      program.statements.size.should eq 1
+
+      stmt = program.statements[0]
+      stmt.should be_a Crysterpreter::AST::ExpressionStatement
+      if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
+        exp = stmt.expression
+        exp.should be_a Crysterpreter::AST::CallExpression
+        if exp.is_a?(Crysterpreter::AST::CallExpression)
+          test_indentifier(exp.function, "add")
+          exp.arguments.size.should eq 3
+          test_literal_expression(exp.arguments[0], 1)
+          test_infix_expression(exp.arguments[1], 2, "*", 3)
+          test_infix_expression(exp.arguments[2], 4, "+", 5)
         end
       end
     end

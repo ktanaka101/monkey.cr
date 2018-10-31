@@ -254,4 +254,22 @@ module Crysterpreter::AST
       "#{token_literal}(#{@parameters.map(&.string).join(", ")}) #{@body.string}"
     end
   end
+
+  class CallExpression < Expression
+    getter token : Token::Token, function : Expression, arguments : Array(Expression)
+
+    def initialize(@token, @function, @arguments)
+    end
+
+    def expression_node
+    end
+
+    def token_literal
+      @token.literal
+    end
+
+    def string
+      "#{function.string}(#{@arguments.map(&.string).join(", ")})"
+    end
+  end
 end
