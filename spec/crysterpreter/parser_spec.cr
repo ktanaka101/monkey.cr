@@ -1,5 +1,5 @@
 require "spec"
-require "../src/crysterpreter/parser.cr"
+require "../../src/crysterpreter/parser.cr"
 
 record TestIdentifier, expected_identifier : String
 record TestPrefix, input : String, operator : String, value : Int64 | Bool

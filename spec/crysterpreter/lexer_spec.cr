@@ -1,4 +1,4 @@
-require "./spec_helper"
+require "../spec_helper"
 
 record TestToken, expected_type : Crysterpreter::Token::TokenType, expected_literal : String
 
