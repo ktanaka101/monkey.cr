@@ -2,7 +2,7 @@ module Crysterpreter::Token
   alias TokenType = String
 
   struct Token
-    property type, literal
+    property type : TokenType, literal : String
 
     def initialize(@type : TokenType, @literal : String)
     end

@@ -15,7 +15,7 @@ module Crysterpreter::AST
   end
 
   class Program
-    getter statements
+    getter statements : Array(Statement)
 
     def initialize(@statements : Array(Statement))
     end
@@ -34,7 +34,7 @@ module Crysterpreter::AST
   end
 
   class ExpressionStatement < Statement
-    getter expression
+    getter expression : Expression
 
     def initialize(@token : Token::Token, @expression : Expression)
     end
@@ -57,7 +57,7 @@ module Crysterpreter::AST
   end
 
   class LetStatement < Statement
-    property token, name, value
+    getter token : Token::Token, name : Identifier, value : Expression?
 
     def initialize(@token : Token::Token, @name : Identifier, @value : Expression? = nil)
     end
@@ -103,7 +103,7 @@ module Crysterpreter::AST
   end
 
   class Identifier < Expression
-    getter token, value
+    getter token : Token::Token, value : String
 
     def initialize(@token : Token::Token, @value : String)
     end
@@ -123,7 +123,7 @@ module Crysterpreter::AST
   class IntegerLiteral < Expression
     getter token : Token::Token, value : Int64
 
-    def initialize(@token, @value)
+    def initialize(@token : Token::Token, @value : Int64)
     end
 
     def expression_node
@@ -141,7 +141,7 @@ module Crysterpreter::AST
   class PrefixExpression < Expression
     getter token : Token::Token, operator : String, right : Expression
 
-    def initialize(@token, @operator, @right)
+    def initialize(@token : Token::Token, @operator : String, @right : Expression)
     end
 
     def expression_node
@@ -159,7 +159,7 @@ module Crysterpreter::AST
   class InfixExpression < Expression
     getter token : Token::Token, left : Expression, operator : String, right : Expression
 
-    def initialize(@token, @left, @operator, @right)
+    def initialize(@token : Token::Token, @left : Expression, @operator : String, @right : Expression)
     end
 
     def expression_node
@@ -177,7 +177,7 @@ module Crysterpreter::AST
   class Boolean < Expression
     getter token : Token::Token, value : Bool
 
-    def initialize(@token, @value)
+    def initialize(@token : Token::Token, @value : Bool)
     end
 
     def expression_node
@@ -195,7 +195,7 @@ module Crysterpreter::AST
   class IfExpression < Expression
     getter token : Token::Token, condition : Expression, consequence : BlockStatement, alternative : BlockStatement?
 
-    def initialize(@token, @condition, @consequence, @alternative)
+    def initialize(@token : Token::Token, @condition : Expression, @consequence : BlockStatement, @alternative : BlockStatement?)
     end
 
     def expression_node
@@ -220,7 +220,7 @@ module Crysterpreter::AST
   class BlockStatement < Statement
     getter token : Token::Token, statements : Array(Statement)
 
-    def initialize(@token, @statements)
+    def initialize(@token : Token::Token, @statements : Array(Statement))
     end
 
     def statement_node
@@ -240,7 +240,7 @@ module Crysterpreter::AST
   class FunctionLiteral < Expression
     getter token : Token::Token, parameters : Array(Identifier), body : BlockStatement
 
-    def initialize(@token, @parameters, @body)
+    def initialize(@token : Token::Token, @parameters : Array(Identifier), @body : BlockStatement)
     end
 
     def expression_node
@@ -258,7 +258,7 @@ module Crysterpreter::AST
   class CallExpression < Expression
     getter token : Token::Token, function : Expression, arguments : Array(Expression)
 
-    def initialize(@token, @function, @arguments)
+    def initialize(@token : Token::Token, @function : Expression, @arguments : Array(Expression))
     end
 
     def expression_node
