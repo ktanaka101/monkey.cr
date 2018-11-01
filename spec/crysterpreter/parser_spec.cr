@@ -11,10 +11,10 @@ module Crysterpreter::Parser
   describe Parser do
     it "let statements" do
       inputs = <<-STRING
-      let x = 5;
-      let y = 10;
-      let foobar = 838383;
-    STRING
+        let x = 5;
+        let y = 10;
+        let foobar = 838383;
+      STRING
 
       lexer = Crysterpreter::Lexer::Lexer.new(inputs)
       parser = Parser.new(lexer)
@@ -37,10 +37,10 @@ module Crysterpreter::Parser
 
     it "return statements" do
       inputs = <<-STRING
-      return 5;
-      return 10;
-      return 993322;
-    STRING
+        return 5;
+        return 10;
+        return 993322;
+      STRING
 
       lexer = Crysterpreter::Lexer::Lexer.new(inputs)
       parser = Parser.new(lexer)
