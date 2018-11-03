@@ -79,10 +79,6 @@ module Crysterpreter::Parser
 
       next_token if peek_token_is(Token::SEMICOLON)
 
-      while !cur_token_is(Token::SEMICOLON)
-        next_token
-      end
-
       AST::LetStatement.new(token, name, value)
     end
 
@@ -94,9 +90,7 @@ module Crysterpreter::Parser
       return_value = parse_expression(Priority::LOWEST)
       return nil if return_value.nil?
 
-      while !cur_token_is(Token::SEMICOLON)
-        next_token
-      end
+      next_token if peek_token_is(Token::SEMICOLON)
 
       AST::ReturnStatement.new(token, return_value)
     end
