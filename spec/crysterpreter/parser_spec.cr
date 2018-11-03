@@ -2,6 +2,7 @@ require "../spec_helper"
 require "../../src/crysterpreter/parser.cr"
 
 record TestLet(T), input : String, expected_identifier : String, expected_value : T
+record TestReturn(T), input : String, expected_value : T
 record TestPrefix, input : String, operator : String, value : Int64 | Bool
 record TestInfix, input : String, left_value : Int64 | Bool, operator : String, right_value : Int64 | Bool
 record TestOperatorPrecedence, input : String, expected : String
@@ -34,24 +35,21 @@ module Crysterpreter::Parser
     end
 
     it "return statements" do
-      inputs = <<-STRING
-        return 5;
-        return 10;
-        return 993322;
-      STRING
+      tests = [
+        TestReturn(Int32).new("return 5;", 5),
+        TestReturn(Bool).new("return true;", true),
+        TestReturn(String).new("return y;", "y"),
+      ]
 
-      lexer = Crysterpreter::Lexer::Lexer.new(inputs)
-      parser = Parser.new(lexer)
+      tests.each do |test|
+        lexer = Crysterpreter::Lexer::Lexer.new(test.input)
+        parser = Parser.new(lexer)
+        program = parser.parse_program
+        check_parser_errors(parser)
 
-      program = parser.parse_program
-      check_parser_errors(parser)
-      program.should_not be_nil
-      program.statements.size.should eq 3
-
-      program.statements.each do |stmt|
-        stmt.should_not be_nil
-        stmt.should be_a Crysterpreter::AST::ReturnStatement
-        stmt.token_literal.should eq "return"
+        program.statements.size.should eq 1
+        stmt = program.statements[0]
+        test_return_statement(stmt, test.expected_value)
       end
     end
 
@@ -476,6 +474,14 @@ def test_let_statement(stmt : Crysterpreter::AST::Statement, name : String)
     stmt.token_literal.should eq "let"
     stmt.name.value.should eq name
     stmt.name.token_literal.should eq name
+  end
+end
+
+def test_return_statement(stmt : Crysterpreter::AST::Statement, return_value)
+  stmt.should be_a Crysterpreter::AST::ReturnStatement
+  if stmt.is_a?(Crysterpreter::AST::ReturnStatement)
+    stmt.token_literal.should eq "return"
+    test_literal_expression(stmt.return_value, return_value)
   end
 end
 

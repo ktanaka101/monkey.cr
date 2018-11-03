@@ -86,16 +86,19 @@ module Crysterpreter::Parser
       AST::LetStatement.new(token, name, value)
     end
 
-    def parse_return_statement : AST::ReturnStatement
+    def parse_return_statement : AST::ReturnStatement?
       token = @cur_token
 
       next_token
+
+      return_value = parse_expression(Priority::LOWEST)
+      return nil if return_value.nil?
 
       while !cur_token_is(Token::SEMICOLON)
         next_token
       end
 
-      AST::ReturnStatement.new(token)
+      AST::ReturnStatement.new(token, return_value)
     end
 
     def parse_expression_statement : AST::ExpressionStatement?
