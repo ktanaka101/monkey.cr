@@ -1,7 +1,7 @@
 require "../spec_helper"
 require "../../src/crysterpreter/parser.cr"
 
-record TestIdentifier, expected_identifier : String
+record TestLet(T), input : String, expected_identifier : String, expected_value : T
 record TestPrefix, input : String, operator : String, value : Int64 | Bool
 record TestInfix, input : String, left_value : Int64 | Bool, operator : String, right_value : Int64 | Bool
 record TestOperatorPrecedence, input : String, expected : String
@@ -10,28 +10,26 @@ record TestFunctionParameter, input : String, expected_params : Array(String)
 module Crysterpreter::Parser
   describe Parser do
     it "let statements" do
-      inputs = <<-STRING
-        let x = 5;
-        let y = 10;
-        let foobar = 838383;
-      STRING
-
-      lexer = Crysterpreter::Lexer::Lexer.new(inputs)
-      parser = Parser.new(lexer)
-
-      program = parser.parse_program
-      check_parser_errors(parser)
-      program.should_not be_nil
-      program.statements.size.should eq 3
-
       tests = [
-        TestIdentifier.new("x"),
-        TestIdentifier.new("y"),
-        TestIdentifier.new("foobar"),
+        TestLet(Int32).new("let x = 5;", "x", 5),
+        TestLet(Bool).new("let y = true;", "y", true),
+        TestLet(String).new("let foobar = y;", "foobar", "y"),
       ]
 
-      tests.each_with_index do |test, i|
-        test_let_statement(program.statements[i], test.expected_identifier)
+      tests.each do |test|
+        lexer = Crysterpreter::Lexer::Lexer.new(test.input)
+        parser = Parser.new(lexer)
+        program = parser.parse_program
+        check_parser_errors(parser)
+
+        program.statements.size.should eq 1
+        stmt = program.statements[0]
+        test_let_statement(stmt, test.expected_identifier)
+
+        if stmt.is_a? Crysterpreter::AST::LetStatement
+          val = stmt.value
+          test_literal_expression(val, test.expected_value)
+        end
       end
     end
 

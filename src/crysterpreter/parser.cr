@@ -72,11 +72,18 @@ module Crysterpreter::Parser
 
       return nil unless expect_peek(Token::ASSIGN)
 
+      next_token
+
+      value = parse_expression(Priority::LOWEST)
+      return nil if value.nil?
+
+      next_token if peek_token_is(Token::SEMICOLON)
+
       while !cur_token_is(Token::SEMICOLON)
         next_token
       end
 
-      AST::LetStatement.new(token, name)
+      AST::LetStatement.new(token, name, value)
     end
 
     def parse_return_statement : AST::ReturnStatement
