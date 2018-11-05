@@ -1,5 +1,6 @@
 require "./lexer.cr"
 require "./token.cr"
+require "./parser.cr"
 
 module Crysterpreter::REPL
   PROMPT = ">> "
@@ -12,13 +13,21 @@ module Crysterpreter::REPL
       break if line.nil?
 
       lexer = Lexer::Lexer.new(line)
+      parser = Parser::Parser.new(lexer)
 
-      while true
-        token = lexer.next_token
-        break if token.type == Token::EOF
-
-        puts token
+      program = parser.parse_program
+      if parser.errors.size != 0
+        print_parse_errors(parser.errors)
+        next
       end
+
+      puts "#{program.string}\n"
+    end
+  end
+
+  private def self.print_parse_errors(errors : Array(String))
+    errors.each do |error|
+      puts "\t#{error}\n"
     end
   end
 end
