@@ -14,7 +14,7 @@ module Crysterpreter::AST
     abstract def expression_node
   end
 
-  class Program
+  class Program < Node
     getter statements : Array(Statement)
 
     def initialize(@statements : Array(Statement))
