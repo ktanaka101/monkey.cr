@@ -4,7 +4,8 @@ require "../../src/crysterpreter/lexer"
 require "../../src/crysterpreter/object"
 require "../../src/crysterpreter/parser"
 
-record TestInteger, input : String, expected : Int64
+record TestExpression(T), input : String, expected : T
+alias TestInteger = TestExpression(Int64)
 
 module Crysterpreter::Evaluator
   describe Evaluator do
@@ -33,9 +34,13 @@ def test_eval(input : String) : Crysterpreter::Object::Object?
   Crysterpreter::Evaluator.eval(program)
 end
 
-def test_integer_object(object : Crysterpreter::Object::Object, expected : Int64)
-  object.should be_a Crysterpreter::Object::Integer
-  if object.is_a?(Crysterpreter::Object::Integer)
-    object.value.should eq expected
+macro define_test_object(object_type, expected_type)
+  def test_{{object_type.id.underscore}}_object(object : Crysterpreter::Object::Object, expected : {{expected_type}})
+    object.should be_a Crysterpreter::Object::{{object_type}}
+    if object.is_a?(Crysterpreter::Object::{{object_type}})
+      object.value.should eq expected
+    end
   end
 end
+
+define_test_object Integer, Int64
