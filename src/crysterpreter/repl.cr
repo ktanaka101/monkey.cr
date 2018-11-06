@@ -1,6 +1,6 @@
-require "./lexer.cr"
-require "./token.cr"
-require "./parser.cr"
+require "./lexer"
+require "./token"
+require "./parser"
 
 module Crysterpreter::REPL
   PROMPT = ">> "

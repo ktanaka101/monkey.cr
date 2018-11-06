@@ -1,5 +1,5 @@
 require "../spec_helper"
-require "../../src/crysterpreter/parser.cr"
+require "../../src/crysterpreter/parser"
 
 record TestLet(T), input : String, expected_identifier : String, expected_value : T
 record TestReturn(T), input : String, expected_value : T

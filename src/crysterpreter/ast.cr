@@ -1,4 +1,4 @@
-require "./token.cr"
+require "./token"
 
 module Crysterpreter::AST
   abstract class Node

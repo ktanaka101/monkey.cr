@@ -1,6 +1,6 @@
-require "./ast.cr"
-require "./lexer.cr"
-require "./token.cr"
+require "./ast"
+require "./lexer"
+require "./token"
 
 module Crysterpreter::Parser
   class Parser

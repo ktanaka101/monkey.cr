@@ -1,3 +1,3 @@
-require "./crysterpreter/repl.cr"
+require "./crysterpreter/repl"
 
 Crysterpreter::REPL.start
