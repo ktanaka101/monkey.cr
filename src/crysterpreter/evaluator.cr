@@ -2,6 +2,9 @@ require "./ast"
 require "./object"
 
 module Crysterpreter::Evaluator
+  TRUE  = Crysterpreter::Object::Boolean.new(true)
+  FALSE = Crysterpreter::Object::Boolean.new(false)
+
   def self.eval(node : Crysterpreter::AST::Node) : Crysterpreter::Object::Object?
     case node
     when Crysterpreter::AST::Program
@@ -10,6 +13,8 @@ module Crysterpreter::Evaluator
       eval(node.expression)
     when Crysterpreter::AST::IntegerLiteral
       Crysterpreter::Object::Integer.new(node.value)
+    when Crysterpreter::AST::Boolean
+      node.value ? TRUE : FALSE
     else
       nil
     end

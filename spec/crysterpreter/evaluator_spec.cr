@@ -6,6 +6,7 @@ require "../../src/crysterpreter/parser"
 
 record TestExpression(T), input : String, expected : T
 alias TestInteger = TestExpression(Int64)
+alias TestBoolean = TestExpression(Bool)
 
 module Crysterpreter::Evaluator
   describe Evaluator do
@@ -20,6 +21,21 @@ module Crysterpreter::Evaluator
         evaluated.should_not be_nil
         if evaluated
           test_integer_object(evaluated, test.expected)
+        end
+      end
+    end
+
+    it "eval boolean expression" do
+      tests = [
+        TestBoolean.new("true", true),
+        TestBoolean.new("false", false),
+      ]
+
+      tests.each do |test|
+        evaluated = test_eval(test.input)
+        evaluated.should_not be_nil
+        if evaluated
+          test_boolean_object(evaluated, test.expected)
         end
       end
     end
@@ -44,3 +60,4 @@ macro define_test_object(object_type, expected_type)
 end
 
 define_test_object Integer, Int64
+define_test_object Boolean, Bool
