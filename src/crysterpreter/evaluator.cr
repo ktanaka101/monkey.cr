@@ -20,6 +20,11 @@ module Crysterpreter::Evaluator
       right = eval(node.right)
       return nil if right.nil?
       eval_prefix_expression(node.operator, right)
+    when Crysterpreter::AST::InfixExpression
+      left = eval(node.left)
+      right = eval(node.right)
+      return nil if left.nil? || right.nil?
+      eval_infix_expression(node.operator, left, right)
     else
       nil
     end
@@ -60,6 +65,35 @@ module Crysterpreter::Evaluator
       Crysterpreter::Object::Integer.new(-right.value)
     else
       nil
+    end
+  end
+
+  private def self.eval_infix_expression(operator : String, left : Crysterpreter::Object::Object, right : Crysterpreter::Object::Object) : Crysterpreter::Object::Object?
+    case {left, right}
+    when {Crysterpreter::Object::Integer, Crysterpreter::Object::Integer}
+      eval_integer_infix_expression(operator, left, right)
+    else
+      NULL
+    end
+  end
+
+  private def self.eval_integer_infix_expression(operator : String, left : Crysterpreter::Object::Object, right : Crysterpreter::Object::Object) : Crysterpreter::Object::Object?
+    return nil if !left.is_a?(Crysterpreter::Object::Integer) || !right.is_a?(Crysterpreter::Object::Integer)
+
+    left_val = left.value
+    right_val = right.value
+
+    case operator
+    when "+"
+      Crysterpreter::Object::Integer.new(left_val + right_val)
+    when "-"
+      Crysterpreter::Object::Integer.new(left_val - right_val)
+    when "*"
+      Crysterpreter::Object::Integer.new(left_val * right_val)
+    when "/"
+      Crysterpreter::Object::Integer.new(left_val / right_val)
+    else
+      NULL
     end
   end
 end
