@@ -4,17 +4,22 @@ require "../../src/crysterpreter/lexer"
 require "../../src/crysterpreter/object"
 require "../../src/crysterpreter/parser"
 
-record TestExpression(T), input : String, expected : T
+record TestExpression(T), input : String, expected : T do
+  def self.from(*tests : Tuple(String, T))
+    tests.map { |test| new(test[0], test[1]) }
+  end
+end
+
 alias TestInteger = TestExpression(Int64)
 alias TestBoolean = TestExpression(Bool)
 
 module Crysterpreter::Evaluator
   describe Evaluator do
     it "eval integer expression" do
-      tests = [
-        TestInteger.new("5", 5),
-        TestInteger.new("10", 10),
-      ]
+      tests = TestInteger.from(
+        {"5", 5_i64},
+        {"10", 10_i64}
+      )
 
       tests.each do |test|
         evaluated = test_eval(test.input)
@@ -26,10 +31,10 @@ module Crysterpreter::Evaluator
     end
 
     it "eval boolean expression" do
-      tests = [
-        TestBoolean.new("true", true),
-        TestBoolean.new("false", false),
-      ]
+      tests = TestBoolean.from(
+        {"true", true},
+        {"false", false},
+      )
 
       tests.each do |test|
         evaluated = test_eval(test.input)
