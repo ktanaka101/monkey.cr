@@ -44,6 +44,25 @@ module Crysterpreter::Evaluator
         end
       end
     end
+
+    it "bang operator" do
+      tests = TestBoolean.from(
+        {"!true", false},
+        {"!false", true},
+        {"!5", false},
+        {"!!true", true},
+        {"!!false", false},
+        {"!!5", true}
+      )
+
+      tests.each do |test|
+        evaluated = test_eval(test.input)
+        evaluated.should_not be_nil
+        if evaluated
+          test_boolean_object(evaluated, test.expected)
+        end
+      end
+    end
   end
 end
 
