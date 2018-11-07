@@ -31,10 +31,12 @@ module Crysterpreter::Evaluator
     }.last
   end
 
-  private def self.eval_prefix_expression(operator : String, right : Crysterpreter::Object::Object) : Crysterpreter::Object::Object
+  private def self.eval_prefix_expression(operator : String, right : Crysterpreter::Object::Object) : Crysterpreter::Object::Object?
     case operator
     when "!"
       eval_bang_operator_expression(right)
+    when "-"
+      eval_minus_prefix_operator_expression(right)
     else
       NULL
     end
@@ -50,6 +52,14 @@ module Crysterpreter::Evaluator
       TRUE
     else
       FALSE
+    end
+  end
+
+  private def self.eval_minus_prefix_operator_expression(right : Crysterpreter::Object::Object) : Crysterpreter::Object::Object?
+    if right.is_a?(Crysterpreter::Object::Integer)
+      Crysterpreter::Object::Integer.new(-right.value)
+    else
+      nil
     end
   end
 end

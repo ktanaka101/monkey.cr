@@ -18,7 +18,9 @@ module Crysterpreter::Evaluator
     it "eval integer expression" do
       tests = TestInteger.from(
         {"5", 5_i64},
-        {"10", 10_i64}
+        {"10", 10_i64},
+        {"-5", -5_i64},
+        {"-10", -10_i64},
       )
 
       tests.each do |test|
