@@ -15,7 +15,7 @@ module Crysterpreter::Evaluator
     when Crysterpreter::AST::IntegerLiteral
       Crysterpreter::Object::Integer.new(node.value)
     when Crysterpreter::AST::Boolean
-      node.value ? TRUE : FALSE
+      native_bool_to_boolean_object(node.value)
     when Crysterpreter::AST::PrefixExpression
       right = eval(node.right)
       return nil if right.nil?
@@ -47,6 +47,10 @@ module Crysterpreter::Evaluator
     end
   end
 
+  private def self.native_bool_to_boolean_object(input : Bool) : Crysterpreter::Object::Object
+    input ? TRUE : FALSE
+  end
+
   private def self.eval_bang_operator_expression(right : Crysterpreter::Object::Object) : Crysterpreter::Object::Object
     case right
     when TRUE
@@ -73,7 +77,14 @@ module Crysterpreter::Evaluator
     when {Crysterpreter::Object::Integer, Crysterpreter::Object::Integer}
       eval_integer_infix_expression(operator, left, right)
     else
-      NULL
+      case operator
+      when "=="
+        native_bool_to_boolean_object(left == right)
+      when "!="
+        native_bool_to_boolean_object(left != right)
+      else
+        NULL
+      end
     end
   end
 
@@ -92,6 +103,14 @@ module Crysterpreter::Evaluator
       Crysterpreter::Object::Integer.new(left_val * right_val)
     when "/"
       Crysterpreter::Object::Integer.new(left_val / right_val)
+    when "<"
+      native_bool_to_boolean_object(left_val < right_val)
+    when ">"
+      native_bool_to_boolean_object(left_val > right_val)
+    when "=="
+      native_bool_to_boolean_object(left_val == right_val)
+    when "!="
+      native_bool_to_boolean_object(left_val != right_val)
     else
       NULL
     end
