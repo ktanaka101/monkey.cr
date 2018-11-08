@@ -1,6 +1,7 @@
 require "./lexer"
 require "./token"
 require "./parser"
+require "./evaluator"
 
 module Crysterpreter::REPL
   PROMPT = ">> "
@@ -21,7 +22,10 @@ module Crysterpreter::REPL
         next
       end
 
-      puts "#{program.string}\n"
+      evaluated = Crysterpreter::Evaluator.eval(program)
+      next if evaluated.nil?
+
+      puts "#{evaluated.inspect}\n"
     end
   end
 
