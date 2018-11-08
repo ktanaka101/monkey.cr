@@ -32,7 +32,6 @@ module Crysterpreter::Evaluator
         {"3 * 3 * 3 + 10", 37_i64},
         {"3 * (3 * 3) + 10", 37_i64},
         {"(5 + 10 * 2 + 15 / 3) * 2 + -10", 50_i64},
-        {"3 / 2 + 3 / 2", 3_i64},
       )
 
       tests.each do |test|
