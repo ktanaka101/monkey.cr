@@ -4,83 +4,24 @@ record TestToken, expected_type : Crysterpreter::Token::TokenType, expected_lite
 
 module Crysterpreter::Lexer
   describe Lexer do
-    it "TestNextToken" do
-      tests = [
-        TestToken.new(Crysterpreter::Token::LET, "let"),
-        TestToken.new(Crysterpreter::Token::IDENT, "five"),
-        TestToken.new(Crysterpreter::Token::ASSIGN, "="),
-        TestToken.new(Crysterpreter::Token::INT, "5"),
-        TestToken.new(Crysterpreter::Token::SEMICOLON, ";"),
-        TestToken.new(Crysterpreter::Token::LET, "let"),
-        TestToken.new(Crysterpreter::Token::IDENT, "ten"),
-        TestToken.new(Crysterpreter::Token::ASSIGN, "="),
-        TestToken.new(Crysterpreter::Token::INT, "10"),
-        TestToken.new(Crysterpreter::Token::SEMICOLON, ";"),
-        TestToken.new(Crysterpreter::Token::LET, "let"),
-        TestToken.new(Crysterpreter::Token::IDENT, "add"),
-        TestToken.new(Crysterpreter::Token::ASSIGN, "="),
-        TestToken.new(Crysterpreter::Token::FUNCTION, "fn"),
-        TestToken.new(Crysterpreter::Token::LPAREN, "("),
-        TestToken.new(Crysterpreter::Token::IDENT, "x"),
-        TestToken.new(Crysterpreter::Token::COMMA, ","),
-        TestToken.new(Crysterpreter::Token::IDENT, "y"),
-        TestToken.new(Crysterpreter::Token::RPAREN, ")"),
-        TestToken.new(Crysterpreter::Token::LBRACE, "{"),
-        TestToken.new(Crysterpreter::Token::IDENT, "x"),
-        TestToken.new(Crysterpreter::Token::PLUS, "+"),
-        TestToken.new(Crysterpreter::Token::IDENT, "y"),
-        TestToken.new(Crysterpreter::Token::SEMICOLON, ";"),
-        TestToken.new(Crysterpreter::Token::RBRACE, "}"),
-        TestToken.new(Crysterpreter::Token::SEMICOLON, ";"),
-        TestToken.new(Crysterpreter::Token::LET, "let"),
-        TestToken.new(Crysterpreter::Token::IDENT, "result"),
-        TestToken.new(Crysterpreter::Token::ASSIGN, "="),
-        TestToken.new(Crysterpreter::Token::IDENT, "add"),
-        TestToken.new(Crysterpreter::Token::LPAREN, "("),
-        TestToken.new(Crysterpreter::Token::IDENT, "five"),
-        TestToken.new(Crysterpreter::Token::COMMA, ","),
-        TestToken.new(Crysterpreter::Token::IDENT, "ten"),
-        TestToken.new(Crysterpreter::Token::RPAREN, ")"),
-        TestToken.new(Crysterpreter::Token::SEMICOLON, ";"),
-        TestToken.new(Crysterpreter::Token::BANG, "!"),
-        TestToken.new(Crysterpreter::Token::MINUS, "-"),
-        TestToken.new(Crysterpreter::Token::SLASH, "/"),
-        TestToken.new(Crysterpreter::Token::ASTERISK, "*"),
-        TestToken.new(Crysterpreter::Token::INT, "5"),
-        TestToken.new(Crysterpreter::Token::SEMICOLON, ";"),
-        TestToken.new(Crysterpreter::Token::INT, "5"),
-        TestToken.new(Crysterpreter::Token::LT, "<"),
-        TestToken.new(Crysterpreter::Token::INT, "10"),
-        TestToken.new(Crysterpreter::Token::GT, ">"),
-        TestToken.new(Crysterpreter::Token::INT, "5"),
-        TestToken.new(Crysterpreter::Token::SEMICOLON, ";"),
-        TestToken.new(Crysterpreter::Token::IF, "if"),
-        TestToken.new(Crysterpreter::Token::LPAREN, "("),
-        TestToken.new(Crysterpreter::Token::INT, "5"),
-        TestToken.new(Crysterpreter::Token::LT, "<"),
-        TestToken.new(Crysterpreter::Token::INT, "10"),
-        TestToken.new(Crysterpreter::Token::RPAREN, ")"),
-        TestToken.new(Crysterpreter::Token::LBRACE, "{"),
-        TestToken.new(Crysterpreter::Token::RETURN, "return"),
-        TestToken.new(Crysterpreter::Token::TRUE, "true"),
-        TestToken.new(Crysterpreter::Token::SEMICOLON, ";"),
-        TestToken.new(Crysterpreter::Token::RBRACE, "}"),
-        TestToken.new(Crysterpreter::Token::ELSE, "else"),
-        TestToken.new(Crysterpreter::Token::LBRACE, "{"),
-        TestToken.new(Crysterpreter::Token::RETURN, "return"),
-        TestToken.new(Crysterpreter::Token::FALSE, "false"),
-        TestToken.new(Crysterpreter::Token::SEMICOLON, ";"),
-        TestToken.new(Crysterpreter::Token::RBRACE, "}"),
-        TestToken.new(Crysterpreter::Token::INT, "10"),
-        TestToken.new(Crysterpreter::Token::EQ, "=="),
-        TestToken.new(Crysterpreter::Token::INT, "10"),
-        TestToken.new(Crysterpreter::Token::SEMICOLON, ";"),
-        TestToken.new(Crysterpreter::Token::INT, "10"),
-        TestToken.new(Crysterpreter::Token::NOT_EQ, "!="),
-        TestToken.new(Crysterpreter::Token::INT, "9"),
-        TestToken.new(Crysterpreter::Token::SEMICOLON, ";"),
-        TestToken.new(Crysterpreter::Token::EOF, ""),
-      ]
+    it "next token" do
+      tests = {
+        {Crysterpreter::Token::LET, "let"}, {Crysterpreter::Token::IDENT, "five"}, {Crysterpreter::Token::ASSIGN, "="}, {Crysterpreter::Token::INT, "5"}, {Crysterpreter::Token::SEMICOLON, ";"},
+        {Crysterpreter::Token::LET, "let"}, {Crysterpreter::Token::IDENT, "ten"}, {Crysterpreter::Token::ASSIGN, "="}, {Crysterpreter::Token::INT, "10"}, {Crysterpreter::Token::SEMICOLON, ";"},
+        {Crysterpreter::Token::LET, "let"}, {Crysterpreter::Token::IDENT, "add"}, {Crysterpreter::Token::ASSIGN, "="},
+        {Crysterpreter::Token::FUNCTION, "fn"}, {Crysterpreter::Token::LPAREN, "("}, {Crysterpreter::Token::IDENT, "x"}, {Crysterpreter::Token::COMMA, ","}, {Crysterpreter::Token::IDENT, "y"}, {Crysterpreter::Token::RPAREN, ")"},
+        {Crysterpreter::Token::LBRACE, "{"}, {Crysterpreter::Token::IDENT, "x"}, {Crysterpreter::Token::PLUS, "+"}, {Crysterpreter::Token::IDENT, "y"}, {Crysterpreter::Token::SEMICOLON, ";"}, {Crysterpreter::Token::RBRACE, "}"}, {Crysterpreter::Token::SEMICOLON, ";"},
+        {Crysterpreter::Token::LET, "let"}, {Crysterpreter::Token::IDENT, "result"}, {Crysterpreter::Token::ASSIGN, "="},
+        {Crysterpreter::Token::IDENT, "add"}, {Crysterpreter::Token::LPAREN, "("}, {Crysterpreter::Token::IDENT, "five"}, {Crysterpreter::Token::COMMA, ","}, {Crysterpreter::Token::IDENT, "ten"}, {Crysterpreter::Token::RPAREN, ")"}, {Crysterpreter::Token::SEMICOLON, ";"},
+        {Crysterpreter::Token::BANG, "!"}, {Crysterpreter::Token::MINUS, "-"}, {Crysterpreter::Token::SLASH, "/"}, {Crysterpreter::Token::ASTERISK, "*"}, {Crysterpreter::Token::INT, "5"}, {Crysterpreter::Token::SEMICOLON, ";"},
+        {Crysterpreter::Token::INT, "5"}, {Crysterpreter::Token::LT, "<"}, {Crysterpreter::Token::INT, "10"}, {Crysterpreter::Token::GT, ">"}, {Crysterpreter::Token::INT, "5"}, {Crysterpreter::Token::SEMICOLON, ";"},
+        {Crysterpreter::Token::IF, "if"}, {Crysterpreter::Token::LPAREN, "("}, {Crysterpreter::Token::INT, "5"}, {Crysterpreter::Token::LT, "<"}, {Crysterpreter::Token::INT, "10"}, {Crysterpreter::Token::RPAREN, ")"},
+        {Crysterpreter::Token::LBRACE, "{"}, {Crysterpreter::Token::RETURN, "return"}, {Crysterpreter::Token::TRUE, "true"}, {Crysterpreter::Token::SEMICOLON, ";"}, {Crysterpreter::Token::RBRACE, "}"},
+        {Crysterpreter::Token::ELSE, "else"}, {Crysterpreter::Token::LBRACE, "{"}, {Crysterpreter::Token::RETURN, "return"}, {Crysterpreter::Token::FALSE, "false"}, {Crysterpreter::Token::SEMICOLON, ";"}, {Crysterpreter::Token::RBRACE, "}"},
+        {Crysterpreter::Token::INT, "10"}, {Crysterpreter::Token::EQ, "=="}, {Crysterpreter::Token::INT, "10"}, {Crysterpreter::Token::SEMICOLON, ";"},
+        {Crysterpreter::Token::INT, "10"}, {Crysterpreter::Token::NOT_EQ, "!="}, {Crysterpreter::Token::INT, "9"}, {Crysterpreter::Token::SEMICOLON, ";"},
+        {Crysterpreter::Token::EOF, ""},
+      }
 
       input = <<-STRING
         let five = 5;
@@ -106,11 +47,11 @@ module Crysterpreter::Lexer
 
       l = Lexer.new(input)
 
-      tests.each_with_index do |tt, i|
+      tests.each_with_index do |(expected_type, expected_literal), i|
         tok = l.next_token
 
-        tok.type.should eq(tt.expected_type)
-        tok.literal.should eq(tt.expected_literal)
+        tok.type.should eq(expected_type)
+        tok.literal.should eq(expected_literal)
       end
     end
   end

@@ -4,19 +4,10 @@ require "../../src/crysterpreter/lexer"
 require "../../src/crysterpreter/object"
 require "../../src/crysterpreter/parser"
 
-record TestExpression(T), input : String, expected : T do
-  def self.from(*tests : Tuple(String, T))
-    tests.map { |test| new(test[0], test[1]) }
-  end
-end
-
-alias TestInteger = TestExpression(Int64)
-alias TestBoolean = TestExpression(Bool)
-
 module Crysterpreter::Evaluator
   describe Evaluator do
-    it "eval integer expression" do
-      tests = TestInteger.from(
+    describe "eval integer expression" do
+      {
         {"5", 5_i64},
         {"10", 10_i64},
         {"-5", -5_i64},
@@ -32,19 +23,19 @@ module Crysterpreter::Evaluator
         {"3 * 3 * 3 + 10", 37_i64},
         {"3 * (3 * 3) + 10", 37_i64},
         {"(5 + 10 * 2 + 15 / 3) * 2 + -10", 50_i64},
-      )
-
-      tests.each do |test|
-        evaluated = test_eval(test.input)
-        evaluated.should_not be_nil
-        if evaluated
-          test_integer_object(evaluated, test.expected)
+      }.each do |input, expected|
+        it "for #{input}" do
+          evaluated = test_eval(input)
+          evaluated.should_not be_nil
+          if evaluated
+            test_integer_object(evaluated, expected)
+          end
         end
       end
     end
 
-    it "eval boolean expression" do
-      tests = TestBoolean.from(
+    describe "eval boolean expression" do
+      {
         {"true", true},
         {"false", false},
         {"1 < 2", true},
@@ -64,32 +55,32 @@ module Crysterpreter::Evaluator
         {"(1 < 2) == false", false},
         {"(1 > 2) == true", false},
         {"(1 > 2) == false", true},
-      )
-
-      tests.each do |test|
-        evaluated = test_eval(test.input)
-        evaluated.should_not be_nil
-        if evaluated
-          test_boolean_object(evaluated, test.expected)
+      }.each do |input, expected|
+        it "for #{input}" do
+          evaluated = test_eval(input)
+          evaluated.should_not be_nil
+          if evaluated
+            test_boolean_object(evaluated, expected)
+          end
         end
       end
     end
 
-    it "bang operator" do
-      tests = TestBoolean.from(
+    describe "bang operator" do
+      {
         {"!true", false},
         {"!false", true},
         {"!5", false},
         {"!!true", true},
         {"!!false", false},
-        {"!!5", true}
-      )
-
-      tests.each do |test|
-        evaluated = test_eval(test.input)
-        evaluated.should_not be_nil
-        if evaluated
-          test_boolean_object(evaluated, test.expected)
+        {"!!5", true},
+      }.each do |input, expected|
+        it "for #{input}" do
+          evaluated = test_eval(input)
+          evaluated.should_not be_nil
+          if evaluated
+            test_boolean_object(evaluated, expected)
+          end
         end
       end
     end
