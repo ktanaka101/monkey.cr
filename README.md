@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/KTanaka101/crysterpreter.svg?style=svg&circle-token=8f580ec1c7b5a310bcc770d6891142099e40a674)](https://circleci.com/gh/KTanaka101/crysterpreter)
+
 # crysterpreter
 
 My interpreter
