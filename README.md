@@ -1,6 +1,6 @@
 # crysterpreter
 
-My best programming language
+My interpreter
 
 ## Installation
 
@@ -24,4 +24,4 @@ TODO: Write development instructions here
 
 ## Contributors
 
-- [your-github-user](https://github.com/your-github-user) your-name-here - creator, maintainer
+- [KTanaka101](https://github.com/KTanaka101) Kentaro Tanaka - creator, maintainer
