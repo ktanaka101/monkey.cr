@@ -26,7 +26,6 @@ module Crysterpreter::Evaluator
       }.each do |input, expected|
         it "for #{input}" do
           evaluated = test_eval(input)
-          evaluated.should_not be_nil
           if evaluated
             test_integer_object(evaluated, expected)
           end
@@ -58,7 +57,6 @@ module Crysterpreter::Evaluator
       }.each do |input, expected|
         it "for #{input}" do
           evaluated = test_eval(input)
-          evaluated.should_not be_nil
           if evaluated
             test_boolean_object(evaluated, expected)
           end
@@ -77,7 +75,6 @@ module Crysterpreter::Evaluator
       }.each do |input, expected|
         it "for #{input}" do
           evaluated = test_eval(input)
-          evaluated.should_not be_nil
           if evaluated
             test_boolean_object(evaluated, expected)
           end
@@ -92,7 +89,9 @@ def test_eval(input : String) : Crysterpreter::Object::Object?
   p = Crysterpreter::Parser::Parser.new(l)
   program = p.parse_program
 
-  Crysterpreter::Evaluator.eval(program)
+  evaluated = Crysterpreter::Evaluator.eval(program)
+  evaluated.should_not be_nil
+  evaluated
 end
 
 macro define_test_object(object_type, expected_type)
