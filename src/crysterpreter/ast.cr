@@ -81,9 +81,9 @@ module Crysterpreter::AST
   end
 
   class ReturnStatement < Statement
-    getter token : Token::Token, return_value : Expression?
+    getter token : Token::Token, return_value : Expression
 
-    def initialize(@token : Token::Token, @return_value : Expression? = nil)
+    def initialize(@token : Token::Token, @return_value : Expression)
     end
 
     def statement_node
