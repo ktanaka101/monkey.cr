@@ -81,6 +81,38 @@ module Crysterpreter::Evaluator
         end
       end
     end
+
+    describe "if else expression" do
+      {
+        {"if (true) { 10 }", 10_i64},
+        {"if (false) { 10 }", nil},
+        {"if (1) { 10 }", 10_i64},
+        {"if ( 1 < 2 ) { 10 }", 10_i64},
+        {"if ( 1 > 2 ) { 10 }", nil},
+        {"if ( 1 > 2 ) { 10 } else { 20 }", 20_i64},
+        {"if ( 1 < 2 ) { 10 } else { 20 }", 10_i64},
+      }.each do |input, expected|
+        it "for #{input}" do
+          evaluated = test_eval(input)
+          if evaluated
+            test_object(evaluated, expected)
+          end
+        end
+      end
+    end
+  end
+end
+
+def test_object(object : Crysterpreter::Object::Object, expected)
+  case expected
+  when Bool
+    test_boolean_object(object, expected)
+  when Int64
+    test_integer_object(object, expected)
+  when Nil
+    test_null_object(object)
+  else
+    "it test is ".should be_false
   end
 end
 
@@ -105,3 +137,7 @@ end
 
 define_test_object Integer, Int64
 define_test_object Boolean, Bool
+
+def test_null_object(object : Crysterpreter::Object::Object)
+  object.should be_a Crysterpreter::Object::Null
+end

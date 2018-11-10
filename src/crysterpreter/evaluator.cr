@@ -25,6 +25,10 @@ module Crysterpreter::Evaluator
       right = eval(node.right)
       return nil if left.nil? || right.nil?
       eval_infix_expression(node.operator, left, right)
+    when Crysterpreter::AST::BlockStatement
+      eval_statements(node.statements)
+    when Crysterpreter::AST::IfExpression
+      eval_if_expressioin(node)
     else
       nil
     end
@@ -113,6 +117,34 @@ module Crysterpreter::Evaluator
       native_bool_to_boolean_object(left_val != right_val)
     else
       NULL
+    end
+  end
+
+  private def self.eval_if_expressioin(ie : Crysterpreter::AST::IfExpression) : Crysterpreter::Object::Object?
+    condition = eval(ie.condition)
+    return nil if condition.nil?
+
+    alternative = ie.alternative
+
+    if is_truthy(condition)
+      eval(ie.consequence)
+    elsif alternative
+      eval(alternative)
+    else
+      NULL
+    end
+  end
+
+  private def self.is_truthy(obj : Crysterpreter::Object::Object) : Bool
+    case obj
+    when NULL
+      false
+    when TRUE
+      true
+    when FALSE
+      false
+    else
+      true
     end
   end
 end
