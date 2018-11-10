@@ -100,6 +100,33 @@ module Crysterpreter::Evaluator
         end
       end
     end
+
+    describe "return statements" do
+      {
+        {"return 10;", 10_i64},
+        {"return 10; 9;", 10_i64},
+        {"return 2 * 5; 9;", 10_i64},
+        {"9; return 2 * 5; 9;", 10_i64},
+        {
+          %(
+            if (10 > 1) {
+              if (10 > 1) {
+                return 10;
+              }
+            }
+
+            retrun 1;
+          ), 10_i64,
+        },
+      }.each do |input, expected|
+        it "for #{input}" do
+          evaluated = test_eval(input)
+          if evaluated
+            test_integer_object(evaluated, expected)
+          end
+        end
+      end
+    end
   end
 end
 

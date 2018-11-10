@@ -9,7 +9,7 @@ module Crysterpreter::Evaluator
   def self.eval(node : Crysterpreter::AST::Node) : Crysterpreter::Object::Object?
     case node
     when Crysterpreter::AST::Program
-      eval_statements(node.statements)
+      eval_program(node)
     when Crysterpreter::AST::ExpressionStatement
       eval(node.expression)
     when Crysterpreter::AST::IntegerLiteral
@@ -26,18 +26,43 @@ module Crysterpreter::Evaluator
       return nil if left.nil? || right.nil?
       eval_infix_expression(node.operator, left, right)
     when Crysterpreter::AST::BlockStatement
-      eval_statements(node.statements)
+      eval_block_statement(node)
     when Crysterpreter::AST::IfExpression
       eval_if_expressioin(node)
+    when Crysterpreter::AST::ReturnStatement
+      val = eval(node.return_value)
+      return nil if val.nil?
+      Crysterpreter::Object::ReturnValue.new(val)
     else
       nil
     end
   end
 
-  private def self.eval_statements(stmts : Array(Crysterpreter::AST::Statement)) : Crysterpreter::Object::Object?
-    stmts.map { |statement|
-      eval(statement)
-    }.last
+  # Last statement is return value for eval
+  # If return statement exists then return for return statement value
+  private def self.eval_program(program : Crysterpreter::AST::Program) : Crysterpreter::Object::Object?
+    result = nil
+
+    program.statements.each do |statement|
+      result = eval(statement)
+      return result.value if result.is_a?(Crysterpreter::Object::ReturnValue)
+    end
+
+    result
+  end
+
+  # Last statement is return value for eval
+  # If return statement exists then return for return statement
+  private def self.eval_block_statement(block : Crysterpreter::AST::BlockStatement) : Crysterpreter::Object::Object?
+    result = nil
+
+    block.statements.each do |statement|
+      result = eval(statement)
+
+      return result if result.is_a?(Crysterpreter::Object::ReturnValue)
+    end
+
+    result
   end
 
   private def self.eval_prefix_expression(operator : String, right : Crysterpreter::Object::Object) : Crysterpreter::Object::Object?

@@ -1,9 +1,10 @@
 module Crysterpreter::Object
   alias ObjectType = String
 
-  INTEGER_OBJ = "INTEGER"
-  BOOLEAN_OBJ = "BOOLEAN"
-  NULL_OBJ    = "NULL"
+  INTEGER_OBJ      = "INTEGER"
+  BOOLEAN_OBJ      = "BOOLEAN"
+  NULL_OBJ         = "NULL"
+  RETURN_VALUE_OBJ = "RETURN_VALUE"
 
   abstract class Object
     abstract def type : ObjectType
@@ -47,6 +48,21 @@ module Crysterpreter::Object
 
     def inspect
       "null"
+    end
+  end
+
+  class ReturnValue < Object
+    getter value : Object
+
+    def initialize(@value : Object)
+    end
+
+    def type
+      RETURN_VALUE_OBJ
+    end
+
+    def inspect
+      @value.inspect
     end
   end
 end
