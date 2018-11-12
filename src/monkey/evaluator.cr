@@ -38,7 +38,7 @@ module Monkey::Evaluator
       val = eval(node.value, env)
       return val if is_error?(val)
       env[node.name.value] = val
-      val
+      NULL
     when Monkey::AST::Identifier
       eval_identifier(node, env)
     else

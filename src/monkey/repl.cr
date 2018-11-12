@@ -26,7 +26,7 @@ module Monkey::REPL
       end
 
       evaluated = Monkey::Evaluator.eval(program, env)
-      next if evaluated.nil?
+      next if evaluated.is_a?(Monkey::Object::Null)
 
       puts "#{evaluated.inspect}\n"
     end
