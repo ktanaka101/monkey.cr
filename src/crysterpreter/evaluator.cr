@@ -30,7 +30,7 @@ module Crysterpreter::Evaluator
     when Crysterpreter::AST::BlockStatement
       eval_block_statement(node, env)
     when Crysterpreter::AST::IfExpression
-      eval_if_expressioin(node, env)
+      eval_if_expression(node, env)
     when Crysterpreter::AST::ReturnStatement
       val = eval(node.return_value, env)
       return val if is_error?(val)
@@ -177,7 +177,7 @@ module Crysterpreter::Evaluator
     end
   end
 
-  private def self.eval_if_expressioin(ie : Crysterpreter::AST::IfExpression, env : Crysterpreter::Object::Environment) : Crysterpreter::Object::Object
+  private def self.eval_if_expression(ie : Crysterpreter::AST::IfExpression, env : Crysterpreter::Object::Environment) : Crysterpreter::Object::Object
     condition = eval(ie.condition, env)
     return condition if is_error?(condition)
 
