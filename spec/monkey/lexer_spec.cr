@@ -1,7 +1,5 @@
 require "../spec_helper"
 
-record TestToken, expected_type : Monkey::Token::TokenType, expected_literal : String
-
 module Monkey::Lexer
   describe Lexer do
     it "next token" do
