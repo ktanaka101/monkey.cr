@@ -25,10 +25,7 @@ module Crysterpreter::Evaluator
         {"(5 + 10 * 2 + 15 / 3) * 2 + -10", 50_i64},
       }.each do |input, expected|
         it "for #{input}" do
-          evaluated = test_eval(input)
-          if evaluated
-            test_integer_object(evaluated, expected)
-          end
+          test_integer_object(test_eval(input), expected)
         end
       end
     end
@@ -56,10 +53,7 @@ module Crysterpreter::Evaluator
         {"(1 > 2) == false", true},
       }.each do |input, expected|
         it "for #{input}" do
-          evaluated = test_eval(input)
-          if evaluated
-            test_boolean_object(evaluated, expected)
-          end
+          test_boolean_object(test_eval(input), expected)
         end
       end
     end
@@ -74,10 +68,7 @@ module Crysterpreter::Evaluator
         {"!!5", true},
       }.each do |input, expected|
         it "for #{input}" do
-          evaluated = test_eval(input)
-          if evaluated
-            test_boolean_object(evaluated, expected)
-          end
+          test_boolean_object(test_eval(input), expected)
         end
       end
     end
@@ -93,10 +84,7 @@ module Crysterpreter::Evaluator
         {"if ( 1 < 2 ) { 10 } else { 20 }", 10_i64},
       }.each do |input, expected|
         it "for #{input}" do
-          evaluated = test_eval(input)
-          if evaluated
-            test_object(evaluated, expected)
-          end
+          test_object(test_eval(input), expected)
         end
       end
     end
@@ -120,10 +108,7 @@ module Crysterpreter::Evaluator
         },
       }.each do |input, expected|
         it "for #{input}" do
-          evaluated = test_eval(input)
-          if evaluated
-            test_integer_object(evaluated, expected)
-          end
+          test_integer_object(test_eval(input), expected)
         end
       end
     end
@@ -174,13 +159,12 @@ def test_object(object : Crysterpreter::Object::Object, expected)
   end
 end
 
-def test_eval(input : String) : Crysterpreter::Object::Object?
+def test_eval(input : String) : Crysterpreter::Object::Object
   l = Crysterpreter::Lexer::Lexer.new(input)
   p = Crysterpreter::Parser::Parser.new(l)
   program = p.parse_program
 
   evaluated = Crysterpreter::Evaluator.eval(program)
-  evaluated.should_not be_nil
   evaluated
 end
 
