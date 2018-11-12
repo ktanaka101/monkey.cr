@@ -5,6 +5,7 @@ module Crysterpreter::Object
   BOOLEAN_OBJ      = "BOOLEAN"
   NULL_OBJ         = "NULL"
   RETURN_VALUE_OBJ = "RETURN_VALUE"
+  ERROR_OBJ        = "ERROR"
 
   abstract class Object
     abstract def type : ObjectType
@@ -63,6 +64,21 @@ module Crysterpreter::Object
 
     def inspect
       @value.inspect
+    end
+  end
+
+  class Error < Object
+    getter message : String
+
+    def initialize(@message : String)
+    end
+
+    def type
+      ERROR_OBJ
+    end
+
+    def inspect
+      "ERROR: #{@message}"
     end
   end
 end
