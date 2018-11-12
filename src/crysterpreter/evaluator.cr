@@ -6,7 +6,7 @@ module Crysterpreter::Evaluator
   FALSE = Crysterpreter::Object::Boolean.new(false)
   NULL  = Crysterpreter::Object::Null.new
 
-  def self.eval(node : Crysterpreter::AST::Node) : Crysterpreter::Object::Object?
+  def self.eval(node : Crysterpreter::AST::Node) : Crysterpreter::Object::Object
     case node
     when Crysterpreter::AST::Program
       eval_program(node)
