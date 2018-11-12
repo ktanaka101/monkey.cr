@@ -1,11 +1,11 @@
 require "../spec_helper"
-require "../../src/crysterpreter/evaluator"
-require "../../src/crysterpreter/lexer"
-require "../../src/crysterpreter/object"
-require "../../src/crysterpreter/environment"
-require "../../src/crysterpreter/parser"
+require "../../src/monkey/evaluator"
+require "../../src/monkey/lexer"
+require "../../src/monkey/object"
+require "../../src/monkey/environment"
+require "../../src/monkey/parser"
 
-module Crysterpreter::Evaluator
+module Monkey::Evaluator
   describe Evaluator do
     describe "eval integer expression" do
       {
@@ -138,8 +138,8 @@ module Crysterpreter::Evaluator
         it "for #{input}" do
           evaluated = test_eval(input)
 
-          evaluated.should be_a Crysterpreter::Object::Error
-          if evaluated.is_a?(Crysterpreter::Object::Error)
+          evaluated.should be_a Monkey::Object::Error
+          if evaluated.is_a?(Monkey::Object::Error)
             evaluated.message.should eq expected
           end
         end
@@ -161,7 +161,7 @@ module Crysterpreter::Evaluator
   end
 end
 
-def test_object(object : Crysterpreter::Object::Object, expected)
+def test_object(object : Monkey::Object::Object, expected)
   case expected
   when Bool
     test_boolean_object(object, expected)
@@ -174,20 +174,20 @@ def test_object(object : Crysterpreter::Object::Object, expected)
   end
 end
 
-def test_eval(input : String) : Crysterpreter::Object::Object
-  l = Crysterpreter::Lexer::Lexer.new(input)
-  p = Crysterpreter::Parser::Parser.new(l)
+def test_eval(input : String) : Monkey::Object::Object
+  l = Monkey::Lexer::Lexer.new(input)
+  p = Monkey::Parser::Parser.new(l)
   program = p.parse_program
-  env = Crysterpreter::Object::Environment.new
+  env = Monkey::Object::Environment.new
 
-  evaluated = Crysterpreter::Evaluator.eval(program, env)
+  evaluated = Monkey::Evaluator.eval(program, env)
   evaluated
 end
 
 macro define_test_object(object_type, expected_type)
-  def test_{{object_type.id.underscore}}_object(object : Crysterpreter::Object::Object, expected : {{expected_type}})
-    object.should be_a Crysterpreter::Object::{{object_type}}
-    if object.is_a?(Crysterpreter::Object::{{object_type}})
+  def test_{{object_type.id.underscore}}_object(object : Monkey::Object::Object, expected : {{expected_type}})
+    object.should be_a Monkey::Object::{{object_type}}
+    if object.is_a?(Monkey::Object::{{object_type}})
       object.value.should eq expected
     end
   end
@@ -196,6 +196,6 @@ end
 define_test_object Integer, Int64
 define_test_object Boolean, Bool
 
-def test_null_object(object : Crysterpreter::Object::Object)
-  object.should be_a Crysterpreter::Object::Null
+def test_null_object(object : Monkey::Object::Object)
+  object.should be_a Monkey::Object::Null
 end

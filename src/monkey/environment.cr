@@ -1,9 +1,9 @@
 require "./object"
 
-module Crysterpreter::Object
+module Monkey::Object
   class Environment
     def initialize
-      @hs = {} of String => Crysterpreter::Object::Object
+      @hs = {} of String => Monkey::Object::Object
     end
 
     forward_missing_to @hs

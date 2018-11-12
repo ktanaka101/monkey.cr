@@ -1,7 +1,7 @@
 require "../spec_helper"
-require "../../src/crysterpreter/parser"
+require "../../src/monkey/parser"
 
-module Crysterpreter::Parser
+module Monkey::Parser
   describe Parser do
     describe "let statements" do
       {
@@ -11,7 +11,7 @@ module Crysterpreter::Parser
         {"let foobar = y;", "foobar", "y"},
       }.each do |input, expected_identifier, expected_value|
         it "for #{input}" do
-          lexer = Crysterpreter::Lexer::Lexer.new(input)
+          lexer = Monkey::Lexer::Lexer.new(input)
           parser = Parser.new(lexer)
           program = parser.parse_program
           check_parser_errors(parser)
@@ -20,7 +20,7 @@ module Crysterpreter::Parser
           stmt = program.statements[0]
           test_let_statement(stmt, expected_identifier)
 
-          if stmt.is_a? Crysterpreter::AST::LetStatement
+          if stmt.is_a? Monkey::AST::LetStatement
             val = stmt.value
             test_literal_expression(val, expected_value)
           end
@@ -36,7 +36,7 @@ module Crysterpreter::Parser
         {"return y;", "y"},
       }.each do |input, expected|
         it "for #{input}" do
-          lexer = Crysterpreter::Lexer::Lexer.new(input)
+          lexer = Monkey::Lexer::Lexer.new(input)
           parser = Parser.new(lexer)
           program = parser.parse_program
           check_parser_errors(parser)
@@ -49,19 +49,19 @@ module Crysterpreter::Parser
     end
 
     it "string" do
-      program = Crysterpreter::AST::Program.new([
-        Crysterpreter::AST::LetStatement.new(
-          Crysterpreter::Token::Token.new(Crysterpreter::Token::LET, "let"),
-          Crysterpreter::AST::Identifier.new(
-            Crysterpreter::Token::Token.new(Crysterpreter::Token::IDENT, "myVar"),
+      program = Monkey::AST::Program.new([
+        Monkey::AST::LetStatement.new(
+          Monkey::Token::Token.new(Monkey::Token::LET, "let"),
+          Monkey::AST::Identifier.new(
+            Monkey::Token::Token.new(Monkey::Token::IDENT, "myVar"),
             "myVar"
           ),
-          Crysterpreter::AST::Identifier.new(
-            Crysterpreter::Token::Token.new(Crysterpreter::Token::IDENT, "anotherVar"),
+          Monkey::AST::Identifier.new(
+            Monkey::Token::Token.new(Monkey::Token::IDENT, "anotherVar"),
             "anotherVar"
           ),
         ),
-      ] of Crysterpreter::AST::Statement)
+      ] of Monkey::AST::Statement)
 
       program.string.should eq "let myVar = anotherVar;"
     end
@@ -69,7 +69,7 @@ module Crysterpreter::Parser
     it "identifier expression" do
       inputs = "foobar"
 
-      lexer = Crysterpreter::Lexer::Lexer.new(inputs)
+      lexer = Monkey::Lexer::Lexer.new(inputs)
       parser = Parser.new(lexer)
       program = parser.parse_program
       check_parser_errors(parser)
@@ -77,8 +77,8 @@ module Crysterpreter::Parser
       program.statements.size.should eq 1
       stmt = program.statements[0]
 
-      stmt.should be_a Crysterpreter::AST::ExpressionStatement
-      if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
+      stmt.should be_a Monkey::AST::ExpressionStatement
+      if stmt.is_a?(Monkey::AST::ExpressionStatement)
         test_literal_expression(stmt.expression, "foobar")
       end
     end
@@ -89,7 +89,7 @@ module Crysterpreter::Parser
         {"5;", 5},
       }.each do |input, expected|
         it "for #{input}" do
-          lexer = Crysterpreter::Lexer::Lexer.new(input)
+          lexer = Monkey::Lexer::Lexer.new(input)
           parser = Parser.new(lexer)
           program = parser.parse_program
           check_parser_errors(parser)
@@ -97,8 +97,8 @@ module Crysterpreter::Parser
           program.statements.size.should eq 1
           stmt = program.statements[0]
 
-          stmt.should be_a Crysterpreter::AST::ExpressionStatement
-          if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
+          stmt.should be_a Monkey::AST::ExpressionStatement
+          if stmt.is_a?(Monkey::AST::ExpressionStatement)
             test_literal_expression(stmt.expression, expected)
           end
         end
@@ -112,7 +112,7 @@ module Crysterpreter::Parser
         {"false;", false},
       }.each do |input, expected|
         it "for #{input}" do
-          l = Crysterpreter::Lexer::Lexer.new(input)
+          l = Monkey::Lexer::Lexer.new(input)
           parser = Parser.new(l)
           program = parser.parse_program
           check_parser_errors(parser)
@@ -120,8 +120,8 @@ module Crysterpreter::Parser
           program.statements.size.should eq 1
           stmt = program.statements[0]
 
-          stmt.should be_a Crysterpreter::AST::ExpressionStatement
-          if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
+          stmt.should be_a Monkey::AST::ExpressionStatement
+          if stmt.is_a?(Monkey::AST::ExpressionStatement)
             test_literal_expression(stmt.expression, expected)
           end
         end
@@ -137,7 +137,7 @@ module Crysterpreter::Parser
         {"!false;", "!", false},
       }.each do |input, expected_operator, expected_value|
         it "for #{input}" do
-          l = Crysterpreter::Lexer::Lexer.new(input)
+          l = Monkey::Lexer::Lexer.new(input)
           parser = Parser.new(l)
           program = parser.parse_program
           check_parser_errors(parser)
@@ -145,12 +145,12 @@ module Crysterpreter::Parser
           program.statements.size.should eq 1
 
           stmt = program.statements[0]
-          stmt.should be_a Crysterpreter::AST::ExpressionStatement
-          if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
+          stmt.should be_a Monkey::AST::ExpressionStatement
+          if stmt.is_a?(Monkey::AST::ExpressionStatement)
             exp = stmt.expression
 
-            exp.should be_a Crysterpreter::AST::PrefixExpression
-            if exp.is_a?(Crysterpreter::AST::PrefixExpression)
+            exp.should be_a Monkey::AST::PrefixExpression
+            if exp.is_a?(Monkey::AST::PrefixExpression)
               exp.operator.should eq expected_operator
               test_literal_expression(exp.right, expected_value)
             end
@@ -175,7 +175,7 @@ module Crysterpreter::Parser
         {"false == false;", false, "==", false},
       }.each do |input, expected_left, expected_operator, expected_right|
         it "for #{input}" do
-          l = Crysterpreter::Lexer::Lexer.new(input)
+          l = Monkey::Lexer::Lexer.new(input)
           parser = Parser.new(l)
           program = parser.parse_program
           check_parser_errors(parser)
@@ -183,8 +183,8 @@ module Crysterpreter::Parser
           program.statements.size.should eq 1
 
           stmt = program.statements[0]
-          stmt.should be_a Crysterpreter::AST::ExpressionStatement
-          if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
+          stmt.should be_a Monkey::AST::ExpressionStatement
+          if stmt.is_a?(Monkey::AST::ExpressionStatement)
             test_infix_expression(stmt.expression, expected_left, expected_operator, expected_right)
           end
         end
@@ -291,7 +291,7 @@ module Crysterpreter::Parser
         },
       }.each do |input, expected|
         it "for #{input}" do
-          l = Crysterpreter::Lexer::Lexer.new(input)
+          l = Monkey::Lexer::Lexer.new(input)
           parser = Parser.new(l)
           program = parser.parse_program
           check_parser_errors(parser)
@@ -305,7 +305,7 @@ module Crysterpreter::Parser
     it "if expression" do
       input = "if (x < y) { x }"
 
-      l = Crysterpreter::Lexer::Lexer.new(input)
+      l = Monkey::Lexer::Lexer.new(input)
       parser = Parser.new(l)
       program = parser.parse_program
       check_parser_errors(parser)
@@ -313,17 +313,17 @@ module Crysterpreter::Parser
       program.statements.size.should eq 1
 
       stmt = program.statements[0]
-      stmt.should be_a Crysterpreter::AST::ExpressionStatement
-      if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
+      stmt.should be_a Monkey::AST::ExpressionStatement
+      if stmt.is_a?(Monkey::AST::ExpressionStatement)
         exp = stmt.expression
-        exp.should be_a Crysterpreter::AST::IfExpression
-        if exp.is_a?(Crysterpreter::AST::IfExpression)
+        exp.should be_a Monkey::AST::IfExpression
+        if exp.is_a?(Monkey::AST::IfExpression)
           test_infix_expression(exp.condition, "x", "<", "y")
           exp.consequence.statements.size.should eq 1
           consequence = exp.consequence.statements[0]
 
-          consequence.should be_a Crysterpreter::AST::ExpressionStatement
-          if consequence.is_a?(Crysterpreter::AST::ExpressionStatement)
+          consequence.should be_a Monkey::AST::ExpressionStatement
+          if consequence.is_a?(Monkey::AST::ExpressionStatement)
             test_indentifier(consequence.expression, "x")
 
             exp.alternative.should be_nil
@@ -338,7 +338,7 @@ module Crysterpreter::Parser
         "if (x < y) { x; } else { y; }",
       }.each do |input|
         it "for #{input}" do
-          l = Crysterpreter::Lexer::Lexer.new(input)
+          l = Monkey::Lexer::Lexer.new(input)
           parser = Parser.new(l)
           program = parser.parse_program
           check_parser_errors(parser)
@@ -346,28 +346,28 @@ module Crysterpreter::Parser
           program.statements.size.should eq 1
 
           stmt = program.statements[0]
-          stmt.should be_a Crysterpreter::AST::ExpressionStatement
-          if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
+          stmt.should be_a Monkey::AST::ExpressionStatement
+          if stmt.is_a?(Monkey::AST::ExpressionStatement)
             exp = stmt.expression
-            exp.should be_a Crysterpreter::AST::IfExpression
-            if exp.is_a?(Crysterpreter::AST::IfExpression)
+            exp.should be_a Monkey::AST::IfExpression
+            if exp.is_a?(Monkey::AST::IfExpression)
               test_infix_expression(exp.condition, "x", "<", "y")
               exp.consequence.statements.size.should eq 1
               consequence = exp.consequence.statements[0]
 
-              consequence.should be_a Crysterpreter::AST::ExpressionStatement
-              if consequence.is_a?(Crysterpreter::AST::ExpressionStatement)
+              consequence.should be_a Monkey::AST::ExpressionStatement
+              if consequence.is_a?(Monkey::AST::ExpressionStatement)
                 test_indentifier(consequence.expression, "x")
               end
 
               alt = exp.alternative
-              alt.should be_a Crysterpreter::AST::BlockStatement
-              if alt.is_a?(Crysterpreter::AST::BlockStatement)
+              alt.should be_a Monkey::AST::BlockStatement
+              if alt.is_a?(Monkey::AST::BlockStatement)
                 alt.statements.size.should eq 1
                 alternative = alt.statements[0]
 
-                alternative.should be_a Crysterpreter::AST::ExpressionStatement
-                if alternative.is_a?(Crysterpreter::AST::ExpressionStatement)
+                alternative.should be_a Monkey::AST::ExpressionStatement
+                if alternative.is_a?(Monkey::AST::ExpressionStatement)
                   test_indentifier(alternative.expression, "y")
                 end
               end
@@ -383,7 +383,7 @@ module Crysterpreter::Parser
         "fn(x, y) { x + y; }",
       }.each do |input|
         it "for #{input}" do
-          l = Crysterpreter::Lexer::Lexer.new(input)
+          l = Monkey::Lexer::Lexer.new(input)
           parser = Parser.new(l)
           program = parser.parse_program
           check_parser_errors(parser)
@@ -391,11 +391,11 @@ module Crysterpreter::Parser
           program.statements.size.should eq 1
 
           stmt = program.statements[0]
-          stmt.should be_a Crysterpreter::AST::ExpressionStatement
-          if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
+          stmt.should be_a Monkey::AST::ExpressionStatement
+          if stmt.is_a?(Monkey::AST::ExpressionStatement)
             exp = stmt.expression
-            exp.should be_a Crysterpreter::AST::FunctionLiteral
-            if exp.is_a?(Crysterpreter::AST::FunctionLiteral)
+            exp.should be_a Monkey::AST::FunctionLiteral
+            if exp.is_a?(Monkey::AST::FunctionLiteral)
               exp.parameters.size.should eq 2
 
               test_literal_expression(exp.parameters[0], "x")
@@ -403,8 +403,8 @@ module Crysterpreter::Parser
 
               exp.body.statements.size.should eq 1
               body_stmt = exp.body.statements[0]
-              body_stmt.should be_a Crysterpreter::AST::ExpressionStatement
-              if body_stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
+              body_stmt.should be_a Monkey::AST::ExpressionStatement
+              if body_stmt.is_a?(Monkey::AST::ExpressionStatement)
                 test_infix_expression(body_stmt.expression, "x", "+", "y")
               end
             end
@@ -420,17 +420,17 @@ module Crysterpreter::Parser
         {"fn(x, y, z) {};", ["x", "y", "z"]},
       }.each do |input, expected_params|
         it "for #{input}" do
-          l = Crysterpreter::Lexer::Lexer.new(input)
+          l = Monkey::Lexer::Lexer.new(input)
           parser = Parser.new(l)
           program = parser.parse_program
           check_parser_errors(parser)
 
           stmt = program.statements[0]
-          if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
+          if stmt.is_a?(Monkey::AST::ExpressionStatement)
             function = stmt.expression
 
-            function.should be_a Crysterpreter::AST::FunctionLiteral
-            if function.is_a?(Crysterpreter::AST::FunctionLiteral)
+            function.should be_a Monkey::AST::FunctionLiteral
+            if function.is_a?(Monkey::AST::FunctionLiteral)
               function.parameters.size.should eq expected_params.size
 
               expected_params.each_with_index do |ident, i|
@@ -445,7 +445,7 @@ module Crysterpreter::Parser
     it "call expression parsing" do
       input = "add(1, 2 * 3, 4 + 5);"
 
-      l = Crysterpreter::Lexer::Lexer.new(input)
+      l = Monkey::Lexer::Lexer.new(input)
       parser = Parser.new(l)
       program = parser.parse_program
       check_parser_errors(parser)
@@ -453,11 +453,11 @@ module Crysterpreter::Parser
       program.statements.size.should eq 1
 
       stmt = program.statements[0]
-      stmt.should be_a Crysterpreter::AST::ExpressionStatement
-      if stmt.is_a?(Crysterpreter::AST::ExpressionStatement)
+      stmt.should be_a Monkey::AST::ExpressionStatement
+      if stmt.is_a?(Monkey::AST::ExpressionStatement)
         exp = stmt.expression
-        exp.should be_a Crysterpreter::AST::CallExpression
-        if exp.is_a?(Crysterpreter::AST::CallExpression)
+        exp.should be_a Monkey::AST::CallExpression
+        if exp.is_a?(Monkey::AST::CallExpression)
           test_indentifier(exp.function, "add")
           exp.arguments.size.should eq 3
           test_literal_expression(exp.arguments[0], 1)
@@ -469,7 +469,7 @@ module Crysterpreter::Parser
   end
 end
 
-def check_parser_errors(parser : Crysterpreter::Parser::Parser)
+def check_parser_errors(parser : Monkey::Parser::Parser)
   errors = parser.errors
   return if errors.size == 0
 
@@ -481,42 +481,42 @@ def check_parser_errors(parser : Crysterpreter::Parser::Parser)
   "test".should eq "fail."
 end
 
-def test_let_statement(stmt : Crysterpreter::AST::Statement, name : String)
-  stmt.should be_a Crysterpreter::AST::LetStatement
-  if stmt.is_a?(Crysterpreter::AST::LetStatement)
+def test_let_statement(stmt : Monkey::AST::Statement, name : String)
+  stmt.should be_a Monkey::AST::LetStatement
+  if stmt.is_a?(Monkey::AST::LetStatement)
     stmt.token_literal.should eq "let"
     stmt.name.value.should eq name
     stmt.name.token_literal.should eq name
   end
 end
 
-def test_return_statement(stmt : Crysterpreter::AST::Statement, return_value)
-  stmt.should be_a Crysterpreter::AST::ReturnStatement
-  if stmt.is_a?(Crysterpreter::AST::ReturnStatement)
+def test_return_statement(stmt : Monkey::AST::Statement, return_value)
+  stmt.should be_a Monkey::AST::ReturnStatement
+  if stmt.is_a?(Monkey::AST::ReturnStatement)
     stmt.token_literal.should eq "return"
     test_literal_expression(stmt.return_value, return_value)
   end
 end
 
 def test_integer_literal(exp, value : Int64)
-  exp.should be_a Crysterpreter::AST::IntegerLiteral
-  if exp.is_a?(Crysterpreter::AST::IntegerLiteral)
+  exp.should be_a Monkey::AST::IntegerLiteral
+  if exp.is_a?(Monkey::AST::IntegerLiteral)
     exp.value.should eq value
     exp.token_literal.should eq value.to_s
   end
 end
 
 def test_indentifier(exp, value : String)
-  exp.should be_a Crysterpreter::AST::Identifier
-  if exp.is_a?(Crysterpreter::AST::Identifier)
+  exp.should be_a Monkey::AST::Identifier
+  if exp.is_a?(Monkey::AST::Identifier)
     exp.value.should eq value
     exp.token_literal.should eq value
   end
 end
 
 def test_boolean_literal(exp, value : Bool)
-  exp.should be_a Crysterpreter::AST::Boolean
-  if exp.is_a?(Crysterpreter::AST::Boolean)
+  exp.should be_a Monkey::AST::Boolean
+  if exp.is_a?(Monkey::AST::Boolean)
     exp.value.should eq value
     exp.token_literal.should eq value.to_s
   end
@@ -538,8 +538,8 @@ def test_literal_expression(exp, expected)
 end
 
 def test_infix_expression(exp, left, operator, right)
-  exp.should be_a Crysterpreter::AST::InfixExpression
-  if exp.is_a?(Crysterpreter::AST::InfixExpression)
+  exp.should be_a Monkey::AST::InfixExpression
+  if exp.is_a?(Monkey::AST::InfixExpression)
     test_literal_expression(exp.left, left)
     exp.operator.should eq operator
     test_literal_expression(exp.right, right)

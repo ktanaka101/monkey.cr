@@ -1,3 +1,3 @@
-require "./crysterpreter/repl"
+require "./monkey/repl"
 
-Crysterpreter::REPL.start
+Monkey::REPL.start

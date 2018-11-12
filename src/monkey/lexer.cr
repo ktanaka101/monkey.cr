@@ -1,6 +1,6 @@
 require "./token"
 
-module Crysterpreter::Lexer
+module Monkey::Lexer
   class Lexer
     def initialize(@input : String, @position : Int32 = 0, @read_position : Int32 = 0, @ch : Char | Int32 = 0)
       read_char

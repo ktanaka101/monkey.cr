@@ -2,7 +2,7 @@ require "./ast"
 require "./lexer"
 require "./token"
 
-module Crysterpreter::Parser
+module Monkey::Parser
   class Parser
     getter lexer : Lexer::Lexer, cur_token : Token::Token, peek_token : Token::Token, errors : Array(String)
 

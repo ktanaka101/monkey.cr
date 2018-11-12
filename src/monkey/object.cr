@@ -1,4 +1,4 @@
-module Crysterpreter::Object
+module Monkey::Object
   alias ObjectType = String
 
   INTEGER_OBJ      = "INTEGER"

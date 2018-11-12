@@ -2,45 +2,45 @@ require "./ast"
 require "./environment"
 require "./object"
 
-module Crysterpreter::Evaluator
-  TRUE  = Crysterpreter::Object::Boolean.new(true)
-  FALSE = Crysterpreter::Object::Boolean.new(false)
-  NULL  = Crysterpreter::Object::Null.new
+module Monkey::Evaluator
+  TRUE  = Monkey::Object::Boolean.new(true)
+  FALSE = Monkey::Object::Boolean.new(false)
+  NULL  = Monkey::Object::Null.new
 
-  def self.eval(node : Crysterpreter::AST::Node, env : Crysterpreter::Object::Environment) : Crysterpreter::Object::Object
+  def self.eval(node : Monkey::AST::Node, env : Monkey::Object::Environment) : Monkey::Object::Object
     case node
-    when Crysterpreter::AST::Program
+    when Monkey::AST::Program
       eval_program(node, env)
-    when Crysterpreter::AST::ExpressionStatement
+    when Monkey::AST::ExpressionStatement
       eval(node.expression, env)
-    when Crysterpreter::AST::IntegerLiteral
-      Crysterpreter::Object::Integer.new(node.value)
-    when Crysterpreter::AST::Boolean
+    when Monkey::AST::IntegerLiteral
+      Monkey::Object::Integer.new(node.value)
+    when Monkey::AST::Boolean
       native_bool_to_boolean_object(node.value)
-    when Crysterpreter::AST::PrefixExpression
+    when Monkey::AST::PrefixExpression
       right = eval(node.right, env)
       return right if is_error?(right)
       eval_prefix_expression(node.operator, right)
-    when Crysterpreter::AST::InfixExpression
+    when Monkey::AST::InfixExpression
       left = eval(node.left, env)
       return left if is_error?(left)
       right = eval(node.right, env)
       return right if is_error?(right)
       eval_infix_expression(node.operator, left, right)
-    when Crysterpreter::AST::BlockStatement
+    when Monkey::AST::BlockStatement
       eval_block_statement(node, env)
-    when Crysterpreter::AST::IfExpression
+    when Monkey::AST::IfExpression
       eval_if_expression(node, env)
-    when Crysterpreter::AST::ReturnStatement
+    when Monkey::AST::ReturnStatement
       val = eval(node.return_value, env)
       return val if is_error?(val)
-      Crysterpreter::Object::ReturnValue.new(val)
-    when Crysterpreter::AST::LetStatement
+      Monkey::Object::ReturnValue.new(val)
+    when Monkey::AST::LetStatement
       val = eval(node.value, env)
       return val if is_error?(val)
       env[node.name.value] = val
       val
-    when Crysterpreter::AST::Identifier
+    when Monkey::AST::Identifier
       eval_identifier(node, env)
     else
       new_error("unknown node: #{node}")
@@ -49,16 +49,16 @@ module Crysterpreter::Evaluator
 
   # Last statement is return value for eval
   # If return statement exists then return for return statement value
-  private def self.eval_program(program : Crysterpreter::AST::Program, env : Crysterpreter::Object::Environment) : Crysterpreter::Object::Object
+  private def self.eval_program(program : Monkey::AST::Program, env : Monkey::Object::Environment) : Monkey::Object::Object
     result = nil
 
     program.statements.each do |statement|
       result = eval(statement, env)
 
       case result
-      when Crysterpreter::Object::ReturnValue
+      when Monkey::Object::ReturnValue
         return result.value
-      when Crysterpreter::Object::Error
+      when Monkey::Object::Error
         return result
       end
     end
@@ -72,14 +72,14 @@ module Crysterpreter::Evaluator
 
   # Last statement is return value for eval
   # If return statement exists then return for return statement
-  private def self.eval_block_statement(block : Crysterpreter::AST::BlockStatement, env : Crysterpreter::Object::Environment) : Crysterpreter::Object::Object
+  private def self.eval_block_statement(block : Monkey::AST::BlockStatement, env : Monkey::Object::Environment) : Monkey::Object::Object
     result = nil
 
     block.statements.each do |statement|
       result = eval(statement, env)
 
       case result
-      when Crysterpreter::Object::ReturnValue, Crysterpreter::Object::Error
+      when Monkey::Object::ReturnValue, Monkey::Object::Error
         return result
       end
     end
@@ -91,7 +91,7 @@ module Crysterpreter::Evaluator
     end
   end
 
-  private def self.eval_prefix_expression(operator : String, right : Crysterpreter::Object::Object) : Crysterpreter::Object::Object
+  private def self.eval_prefix_expression(operator : String, right : Monkey::Object::Object) : Monkey::Object::Object
     case operator
     when "!"
       eval_bang_operator_expression(right)
@@ -102,11 +102,11 @@ module Crysterpreter::Evaluator
     end
   end
 
-  private def self.native_bool_to_boolean_object(input : Bool) : Crysterpreter::Object::Object
+  private def self.native_bool_to_boolean_object(input : Bool) : Monkey::Object::Object
     input ? TRUE : FALSE
   end
 
-  private def self.eval_bang_operator_expression(right : Crysterpreter::Object::Object) : Crysterpreter::Object::Object
+  private def self.eval_bang_operator_expression(right : Monkey::Object::Object) : Monkey::Object::Object
     case right
     when TRUE
       FALSE
@@ -119,17 +119,17 @@ module Crysterpreter::Evaluator
     end
   end
 
-  private def self.eval_minus_prefix_operator_expression(right : Crysterpreter::Object::Object) : Crysterpreter::Object::Object
-    if right.is_a?(Crysterpreter::Object::Integer)
-      Crysterpreter::Object::Integer.new(-right.value)
+  private def self.eval_minus_prefix_operator_expression(right : Monkey::Object::Object) : Monkey::Object::Object
+    if right.is_a?(Monkey::Object::Integer)
+      Monkey::Object::Integer.new(-right.value)
     else
       new_error("unknown operator: -#{right.type}")
     end
   end
 
-  private def self.eval_infix_expression(operator : String, left : Crysterpreter::Object::Object, right : Crysterpreter::Object::Object) : Crysterpreter::Object::Object
+  private def self.eval_infix_expression(operator : String, left : Monkey::Object::Object, right : Monkey::Object::Object) : Monkey::Object::Object
     case {left, right}
-    when {Crysterpreter::Object::Integer, Crysterpreter::Object::Integer}
+    when {Monkey::Object::Integer, Monkey::Object::Integer}
       eval_integer_infix_expression(operator, left, right)
     else
       case operator
@@ -147,8 +147,8 @@ module Crysterpreter::Evaluator
     end
   end
 
-  private def self.eval_integer_infix_expression(operator : String, left : Crysterpreter::Object::Object, right : Crysterpreter::Object::Object) : Crysterpreter::Object::Object
-    if !left.is_a?(Crysterpreter::Object::Integer) || !right.is_a?(Crysterpreter::Object::Integer)
+  private def self.eval_integer_infix_expression(operator : String, left : Monkey::Object::Object, right : Monkey::Object::Object) : Monkey::Object::Object
+    if !left.is_a?(Monkey::Object::Integer) || !right.is_a?(Monkey::Object::Integer)
       return new_error("type mismatch: #{left.type} #{operator} #{right.type}")
     end
 
@@ -157,13 +157,13 @@ module Crysterpreter::Evaluator
 
     case operator
     when "+"
-      Crysterpreter::Object::Integer.new(left_val + right_val)
+      Monkey::Object::Integer.new(left_val + right_val)
     when "-"
-      Crysterpreter::Object::Integer.new(left_val - right_val)
+      Monkey::Object::Integer.new(left_val - right_val)
     when "*"
-      Crysterpreter::Object::Integer.new(left_val * right_val)
+      Monkey::Object::Integer.new(left_val * right_val)
     when "/"
-      Crysterpreter::Object::Integer.new(left_val / right_val)
+      Monkey::Object::Integer.new(left_val / right_val)
     when "<"
       native_bool_to_boolean_object(left_val < right_val)
     when ">"
@@ -177,7 +177,7 @@ module Crysterpreter::Evaluator
     end
   end
 
-  private def self.eval_if_expression(ie : Crysterpreter::AST::IfExpression, env : Crysterpreter::Object::Environment) : Crysterpreter::Object::Object
+  private def self.eval_if_expression(ie : Monkey::AST::IfExpression, env : Monkey::Object::Environment) : Monkey::Object::Object
     condition = eval(ie.condition, env)
     return condition if is_error?(condition)
 
@@ -192,7 +192,7 @@ module Crysterpreter::Evaluator
     end
   end
 
-  private def self.is_truthy(obj : Crysterpreter::Object::Object) : Bool
+  private def self.is_truthy(obj : Monkey::Object::Object) : Bool
     case obj
     when NULL
       false
@@ -205,15 +205,15 @@ module Crysterpreter::Evaluator
     end
   end
 
-  private def self.new_error(message : String) : Crysterpreter::Object::Error
-    Crysterpreter::Object::Error.new(message)
+  private def self.new_error(message : String) : Monkey::Object::Error
+    Monkey::Object::Error.new(message)
   end
 
-  private def self.is_error?(obj : Crysterpreter::Object::Object) : Bool
-    obj.is_a?(Crysterpreter::Object::Error)
+  private def self.is_error?(obj : Monkey::Object::Object) : Bool
+    obj.is_a?(Monkey::Object::Error)
   end
 
-  private def self.eval_identifier(node : Crysterpreter::AST::Identifier, env : Crysterpreter::Object::Environment) : Crysterpreter::Object::Object
+  private def self.eval_identifier(node : Monkey::AST::Identifier, env : Monkey::Object::Environment) : Monkey::Object::Object
     env.fetch(node.value, new_error("identifier not found: #{node.value}"))
   end
 end

@@ -1,4 +1,4 @@
-module Crysterpreter::Token
+module Monkey::Token
   alias TokenType = String
 
   struct Token

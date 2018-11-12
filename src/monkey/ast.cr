@@ -1,6 +1,6 @@
 require "./token"
 
-module Crysterpreter::AST
+module Monkey::AST
   abstract class Node
     abstract def token_literal : String
     abstract def string : String

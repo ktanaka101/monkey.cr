@@ -1,6 +1,6 @@
-[![CircleCI](https://circleci.com/gh/KTanaka101/crysterpreter/tree/master.svg?style=shield&circle-token=8f580ec1c7b5a310bcc770d6891142099e40a674)](https://circleci.com/gh/KTanaka101/crysterpreter/tree/master)
+[![CircleCI](https://circleci.com/gh/KTanaka101/monkey/tree/master.svg?style=shield&circle-token=8f580ec1c7b5a310bcc770d6891142099e40a674)](https://circleci.com/gh/KTanaka101/monkey/tree/master)
 
-# crysterpreter
+# monkey
 
 My interpreter
 
@@ -18,7 +18,7 @@ TODO: Write development instructions here
 
 ## Contributing
 
-1. Fork it (<https://github.com/your-github-user/crysterpreter/fork>)
+1. Fork it (<https://github.com/your-github-user/monkey/fork>)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
