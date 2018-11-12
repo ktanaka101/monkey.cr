@@ -57,9 +57,9 @@ module Crysterpreter::AST
   end
 
   class LetStatement < Statement
-    getter token : Token::Token, name : Identifier, value : Expression?
+    getter token : Token::Token, name : Identifier, value : Expression
 
-    def initialize(@token : Token::Token, @name : Identifier, @value : Expression? = nil)
+    def initialize(@token : Token::Token, @name : Identifier, @value : Expression)
     end
 
     def statement_node
