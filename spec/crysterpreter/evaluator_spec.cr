@@ -2,6 +2,7 @@ require "../spec_helper"
 require "../../src/crysterpreter/evaluator"
 require "../../src/crysterpreter/lexer"
 require "../../src/crysterpreter/object"
+require "../../src/crysterpreter/environment"
 require "../../src/crysterpreter/parser"
 
 module Crysterpreter::Evaluator
@@ -132,6 +133,7 @@ module Crysterpreter::Evaluator
           ),
           "unknown operator: BOOLEAN + BOOLEAN",
         },
+        {"foobar", "identifier not found: foobar"},
       }.each do |input, expected|
         it "for #{input}" do
           evaluated = test_eval(input)
@@ -140,6 +142,19 @@ module Crysterpreter::Evaluator
           if evaluated.is_a?(Crysterpreter::Object::Error)
             evaluated.message.should eq expected
           end
+        end
+      end
+    end
+
+    describe "let statements" do
+      {
+        {"let a = 5; a;", 5_i64},
+        {"let a = 5 * 5; a;", 25_i64},
+        {"let a = 5; let b = a; b;", 5_i64},
+        {"let a = 5; let b = a; let c = a + b + 5; c;", 15_i64},
+      }.each do |input, expected|
+        it "for #{input}" do
+          test_integer_object(test_eval(input), expected)
         end
       end
     end
@@ -163,8 +178,9 @@ def test_eval(input : String) : Crysterpreter::Object::Object
   l = Crysterpreter::Lexer::Lexer.new(input)
   p = Crysterpreter::Parser::Parser.new(l)
   program = p.parse_program
+  env = Crysterpreter::Object::Environment.new
 
-  evaluated = Crysterpreter::Evaluator.eval(program)
+  evaluated = Crysterpreter::Evaluator.eval(program, env)
   evaluated
 end
 

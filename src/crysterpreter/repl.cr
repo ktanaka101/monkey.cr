@@ -2,11 +2,14 @@ require "./lexer"
 require "./token"
 require "./parser"
 require "./evaluator"
+require "./environment"
 
 module Crysterpreter::REPL
   PROMPT = ">> "
 
   def self.start
+    env = Crysterpreter::Object::Environment.new
+
     while true
       print PROMPT
 
@@ -22,7 +25,7 @@ module Crysterpreter::REPL
         next
       end
 
-      evaluated = Crysterpreter::Evaluator.eval(program)
+      evaluated = Crysterpreter::Evaluator.eval(program, env)
       next if evaluated.nil?
 
       puts "#{evaluated.inspect}\n"
