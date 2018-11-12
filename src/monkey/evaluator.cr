@@ -1,6 +1,5 @@
 require "./ast"
-require "./environment"
-require "./object"
+require "./object/*"
 
 module Monkey::Evaluator
   TRUE  = Monkey::Object::Boolean.new(true)

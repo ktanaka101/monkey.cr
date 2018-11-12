@@ -2,7 +2,7 @@ require "./lexer"
 require "./token"
 require "./parser"
 require "./evaluator"
-require "./environment"
+require "./object/*"
 
 module Monkey::REPL
   PROMPT = ">> "

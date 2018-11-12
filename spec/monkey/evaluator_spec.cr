@@ -1,8 +1,7 @@
 require "../spec_helper"
 require "../../src/monkey/evaluator"
 require "../../src/monkey/lexer"
-require "../../src/monkey/object"
-require "../../src/monkey/environment"
+require "../../src/monkey/object/*"
 require "../../src/monkey/parser"
 
 module Monkey::Evaluator
