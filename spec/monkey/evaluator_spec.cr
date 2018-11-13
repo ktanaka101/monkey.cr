@@ -160,7 +160,7 @@ module Monkey::Evaluator
 
     describe "function object" do
       {
-        {"fn(x) { x + 2; };", 1, "x", "(x + 2)"}
+        {"fn(x) { x + 2; };", 1, "x", "(x + 2)"},
       }.each do |input, expected_params_size, expected_params, expected_body|
         it "for #{input}" do
           evaluated = test_eval(input)
