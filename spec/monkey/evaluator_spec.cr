@@ -188,6 +188,25 @@ module Monkey::Evaluator
         end
       end
     end
+
+    describe "closures" do
+      {
+        {
+          %(
+            let new_addr = fn(x) {
+              fn(y) { x + y};
+            }
+
+            let addTwo = new_addr(2);
+            addTwo(2);
+          ), 4_i64,
+        },
+      }.each do |input, expected|
+        it "for #{input}" do
+          test_integer_object(test_eval(input), expected)
+        end
+      end
+    end
   end
 end
 
