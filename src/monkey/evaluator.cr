@@ -45,6 +45,13 @@ module Monkey::Evaluator
       params = node.parameters
       body = node.body
       Monkey::Object::Function.new(params, body, env)
+    when Monkey::AST::CallExpression
+      function = eval(node.function, env)
+      return function if is_error?(function)
+      args = eval_expressions(node.arguments, env)
+      return args[0] if args.size == 1 && is_error?(args[0])
+
+      apply_function(function, args)
     else
       new_error("unknown node: #{node}")
     end
@@ -217,6 +224,41 @@ module Monkey::Evaluator
   end
 
   private def self.eval_identifier(node : Monkey::AST::Identifier, env : Monkey::Object::Environment) : Monkey::Object::Object
-    env.fetch(node.value, new_error("identifier not found: #{node.value}"))
+    ident = env[node.value]?
+    ident.nil? ? new_error("identifier not found: #{node.value}") : ident
+  end
+
+  private def self.eval_expressions(exps : Array(Monkey::AST::Expression), env : Monkey::Object::Environment) : Array(Monkey::Object::Object)
+    result = [] of Monkey::Object::Object
+
+    exps.each do |exp|
+      evaluated = eval(exp, env)
+      return [evaluated] if is_error?(evaluated)
+      result << evaluated
+    end
+
+    result
+  end
+
+  private def self.apply_function(fn : Monkey::Object::Object, args : Array(Monkey::Object::Object)) : Monkey::Object::Object
+    return new_error("not a function: #{fn.type}") unless fn.is_a?(Monkey::Object::Function)
+
+    extended_env = extend_function_env(fn, args)
+    evaluated = eval(fn.body, extended_env)
+    unwrap_return_value(evaluated)
+  end
+
+  private def self.extend_function_env(fn : Monkey::Object::Function, args : Array(Monkey::Object::Object)) : Monkey::Object::Environment
+    env = Monkey::Object::Environment.new_enclose(fn.env)
+
+    fn.parameters.each_with_index do |param, i|
+      env[param.value] = args[i]
+    end
+
+    env
+  end
+
+  private def self.unwrap_return_value(obj : Monkey::Object::Object) : Monkey::Object::Object
+    obj.is_a?(Monkey::Object::ReturnValue) ? obj.value : obj
   end
 end

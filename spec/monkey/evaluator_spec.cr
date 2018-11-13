@@ -173,6 +173,21 @@ module Monkey::Evaluator
         end
       end
     end
+
+    describe "function application" do
+      {
+        {"let identity = fn(x) { x; }; identity(5);", 5_i64},
+        {"let identity = fn(x) { return x; }; identity(5);", 5_i64},
+        {"let double = fn(x) { x * 2; }; double(5);", 10_i64},
+        {"let add = fn(x, y) { x + y; }; add(5, 5);", 10_i64},
+        {"let add = fn(x, y) { x + y; }; add(5 + 5, add(5, 5));", 20_i64},
+        {"fn(x) { x; }(5)", 5_i64},
+      }.each do |input, expected|
+        it "for #{input}" do
+          test_integer_object(test_eval(input), expected)
+        end
+      end
+    end
   end
 end
 
