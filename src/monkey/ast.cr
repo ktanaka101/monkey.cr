@@ -233,9 +233,7 @@ module Monkey::AST
     end
 
     def string
-      @statements.each_with_object("") do |stmt, str|
-        str += stmt.string
-      end
+      @statements.map(&.string).join
     end
   end
 
