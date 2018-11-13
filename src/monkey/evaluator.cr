@@ -41,6 +41,10 @@ module Monkey::Evaluator
       NULL
     when Monkey::AST::Identifier
       eval_identifier(node, env)
+    when Monkey::AST::FunctionLiteral
+      params = node.parameters
+      body = node.body
+      Monkey::Object::Function.new(params, body, env)
     else
       new_error("unknown node: #{node}")
     end

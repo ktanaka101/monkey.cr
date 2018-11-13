@@ -157,6 +157,22 @@ module Monkey::Evaluator
         end
       end
     end
+
+    describe "function object" do
+      {
+        {"fn(x) { x + 2; };", 1, "x", "(x + 2)"}
+      }.each do |input, expected_params_size, expected_params, expected_body|
+        it "for #{input}" do
+          evaluated = test_eval(input)
+          evaluated.should be_a Monkey::Object::Function
+          if evaluated.is_a?(Monkey::Object::Function)
+            evaluated.parameters.size.should eq expected_params_size
+            evaluated.parameters[0].string.should eq expected_params
+            evaluated.body.string.should eq expected_body
+          end
+        end
+      end
+    end
   end
 end
 

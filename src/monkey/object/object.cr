@@ -5,6 +5,7 @@ module Monkey::Object
   BOOLEAN_OBJ      = "BOOLEAN"
   NULL_OBJ         = "NULL"
   RETURN_VALUE_OBJ = "RETURN_VALUE"
+  FUNCTION_OBJ     = "FUNCTION"
   ERROR_OBJ        = "ERROR"
 
   abstract class Object
@@ -79,6 +80,21 @@ module Monkey::Object
 
     def inspect
       "ERROR: #{@message}"
+    end
+  end
+
+  class Function < Object
+    getter parameters : Array(Monkey::AST::Identifier), body : Monkey::AST::BlockStatement, env : Environment
+
+    def initialize(@parameters : Array(Monkey::AST::Identifier), @body : Monkey::AST::BlockStatement, @env : Environment)
+    end
+
+    def type
+      FUNCTION_OBJ
+    end
+
+    def inspect
+      "fn(#{@parameters.map(&.string).join(", ")}) {\n#{@body.string}\n}"
     end
   end
 end
