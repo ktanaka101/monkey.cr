@@ -14,7 +14,7 @@ module Monkey::REPL
       print PROMPT
 
       line = gets
-      break if line.nil?
+      next if line.nil? || line.chomp.empty?
 
       lexer = Lexer::Lexer.new(line)
       parser = Parser::Parser.new(lexer)
