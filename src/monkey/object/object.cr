@@ -1,5 +1,5 @@
 module Monkey::Object
-  alias ObjectType = String
+  alias ObjectType = ::String
 
   INTEGER_OBJ      = "INTEGER"
   BOOLEAN_OBJ      = "BOOLEAN"
@@ -7,10 +7,11 @@ module Monkey::Object
   RETURN_VALUE_OBJ = "RETURN_VALUE"
   FUNCTION_OBJ     = "FUNCTION"
   ERROR_OBJ        = "ERROR"
+  STRING_OBJ       = "STRING"
 
   abstract class Object
     abstract def type : ObjectType
-    abstract def inspect : String
+    abstract def inspect : ::String
   end
 
   class Integer < Object
@@ -69,9 +70,9 @@ module Monkey::Object
   end
 
   class Error < Object
-    getter message : String
+    getter message : ::String
 
-    def initialize(@message : String)
+    def initialize(@message : ::String)
     end
 
     def type
@@ -95,6 +96,21 @@ module Monkey::Object
 
     def inspect
       "fn(#{@parameters.map(&.string).join(", ")}) {\n#{@body.string}\n}"
+    end
+  end
+
+  class String < Object
+    getter value : ::String
+
+    def initialize(@value : ::String)
+    end
+
+    def type
+      STRING_OBJ
+    end
+
+    def inspect
+      @value
     end
   end
 end

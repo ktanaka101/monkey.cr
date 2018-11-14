@@ -52,6 +52,8 @@ module Monkey::Evaluator
       return args[0] if args.size == 1 && is_error?(args[0])
 
       apply_function(function, args)
+    when Monkey::AST::StringLiteral
+      Monkey::Object::String.new(node.value)
     else
       new_error("unknown node: #{node}")
     end

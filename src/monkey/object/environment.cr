@@ -7,7 +7,7 @@ module Monkey::Object
     end
 
     def initialize(@outer : Environment? = nil)
-      @hs = {} of String => Monkey::Object::Object
+      @hs = {} of ::String => Monkey::Object::Object
     end
 
     def []?(key) : Monkey::Object::Object?
@@ -20,7 +20,7 @@ module Monkey::Object
       end
     end
 
-    def []=(key : String, value : Monkey::Object::Object)
+    def []=(key : ::String, value : Monkey::Object::Object)
       @hs[key] = value
     end
   end

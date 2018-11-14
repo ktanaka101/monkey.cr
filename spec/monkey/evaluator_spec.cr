@@ -223,6 +223,18 @@ module Monkey::Evaluator
         end
       end
     end
+
+    describe "string literal" do
+      {
+        {
+          %("Hello World!"), "Hello World!",
+        },
+      }.each do |input, expected|
+        it "for #{input}" do
+          test_string_object(test_eval(input), expected)
+        end
+      end
+    end
   end
 end
 
@@ -260,6 +272,7 @@ end
 
 define_test_object Integer, Int64
 define_test_object Boolean, Bool
+define_test_object String, String
 
 def test_null_object(object : Monkey::Object::Object)
   object.should be_a Monkey::Object::Null
