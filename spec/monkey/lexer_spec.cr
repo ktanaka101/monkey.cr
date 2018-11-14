@@ -18,6 +18,8 @@ module Monkey::Lexer
         {Monkey::Token::ELSE, "else"}, {Monkey::Token::LBRACE, "{"}, {Monkey::Token::RETURN, "return"}, {Monkey::Token::FALSE, "false"}, {Monkey::Token::SEMICOLON, ";"}, {Monkey::Token::RBRACE, "}"},
         {Monkey::Token::INT, "10"}, {Monkey::Token::EQ, "=="}, {Monkey::Token::INT, "10"}, {Monkey::Token::SEMICOLON, ";"},
         {Monkey::Token::INT, "10"}, {Monkey::Token::NOT_EQ, "!="}, {Monkey::Token::INT, "9"}, {Monkey::Token::SEMICOLON, ";"},
+        {Monkey::Token::STRING, "foobar"},
+        {Monkey::Token::STRING, "foo bar"},
         {Monkey::Token::EOF, ""},
       }
 
@@ -41,6 +43,8 @@ module Monkey::Lexer
 
         10 == 10;
         10 != 9;
+        "foobar"
+        "foo bar"
       STRING
 
       l = Lexer.new(input)

@@ -47,6 +47,16 @@ module Monkey::Lexer
       @input[position...@position]
     end
 
+    def read_string : String
+      position = @position + 1
+      loop do
+        read_char
+        break if @ch == '"' || @ch == 0
+      end
+
+      @input[position...@position]
+    end
+
     def self.is_letter?(ch : Char) : Bool
       ('a'..'z').includes?(ch) || ('A'..'Z').includes?(ch) || ch == '_' || ch == '!' || ch == '?'
     end
@@ -108,6 +118,8 @@ module Monkey::Lexer
                 Token::Token.new(Token::LBRACE, str)
               when '}'
                 Token::Token.new(Token::RBRACE, str)
+              when '"'
+                Token::Token.new(Token::STRING, read_string)
               else
                 if self.class.is_letter?(ch)
                   literal = read_identifier

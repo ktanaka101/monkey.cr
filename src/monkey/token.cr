@@ -18,6 +18,7 @@ module Monkey::Token
   # 識別子 + リテラル
   IDENT = "IDENT"
   INT   = "INT"
+  STRING = "STRING"
 
   # 演算子
   ASSIGN   = "="
