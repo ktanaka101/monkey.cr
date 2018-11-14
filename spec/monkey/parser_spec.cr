@@ -11,10 +11,7 @@ module Monkey::Parser
         {"let foobar = y;", "foobar", "y"},
       }.each do |input, expected_identifier, expected_value|
         it "for #{input}" do
-          lexer = Monkey::Lexer::Lexer.new(input)
-          parser = Parser.new(lexer)
-          program = parser.parse_program
-          check_parser_errors(parser)
+          program = test_parse(input)
 
           program.statements.size.should eq 1
           stmt = program.statements[0]
@@ -36,10 +33,7 @@ module Monkey::Parser
         {"return y;", "y"},
       }.each do |input, expected|
         it "for #{input}" do
-          lexer = Monkey::Lexer::Lexer.new(input)
-          parser = Parser.new(lexer)
-          program = parser.parse_program
-          check_parser_errors(parser)
+          program = test_parse(input)
 
           program.statements.size.should eq 1
           stmt = program.statements[0]
@@ -67,12 +61,9 @@ module Monkey::Parser
     end
 
     it "identifier expression" do
-      inputs = "foobar"
+      input = "foobar"
 
-      lexer = Monkey::Lexer::Lexer.new(inputs)
-      parser = Parser.new(lexer)
-      program = parser.parse_program
-      check_parser_errors(parser)
+      program = test_parse(input)
 
       program.statements.size.should eq 1
       stmt = program.statements[0]
@@ -89,10 +80,7 @@ module Monkey::Parser
         {"5;", 5},
       }.each do |input, expected|
         it "for #{input}" do
-          lexer = Monkey::Lexer::Lexer.new(input)
-          parser = Parser.new(lexer)
-          program = parser.parse_program
-          check_parser_errors(parser)
+          program = test_parse(input)
 
           program.statements.size.should eq 1
           stmt = program.statements[0]
@@ -112,10 +100,7 @@ module Monkey::Parser
         {"false;", false},
       }.each do |input, expected|
         it "for #{input}" do
-          l = Monkey::Lexer::Lexer.new(input)
-          parser = Parser.new(l)
-          program = parser.parse_program
-          check_parser_errors(parser)
+          program = test_parse(input)
 
           program.statements.size.should eq 1
           stmt = program.statements[0]
@@ -137,10 +122,7 @@ module Monkey::Parser
         {"!false;", "!", false},
       }.each do |input, expected_operator, expected_value|
         it "for #{input}" do
-          l = Monkey::Lexer::Lexer.new(input)
-          parser = Parser.new(l)
-          program = parser.parse_program
-          check_parser_errors(parser)
+          program = test_parse(input)
 
           program.statements.size.should eq 1
 
@@ -175,10 +157,7 @@ module Monkey::Parser
         {"false == false;", false, "==", false},
       }.each do |input, expected_left, expected_operator, expected_right|
         it "for #{input}" do
-          l = Monkey::Lexer::Lexer.new(input)
-          parser = Parser.new(l)
-          program = parser.parse_program
-          check_parser_errors(parser)
+          program = test_parse(input)
 
           program.statements.size.should eq 1
 
@@ -291,10 +270,7 @@ module Monkey::Parser
         },
       }.each do |input, expected|
         it "for #{input}" do
-          l = Monkey::Lexer::Lexer.new(input)
-          parser = Parser.new(l)
-          program = parser.parse_program
-          check_parser_errors(parser)
+          program = test_parse(input)
 
           actual = program.string
           actual.should eq expected
@@ -305,10 +281,7 @@ module Monkey::Parser
     it "if expression" do
       input = "if (x < y) { x }"
 
-      l = Monkey::Lexer::Lexer.new(input)
-      parser = Parser.new(l)
-      program = parser.parse_program
-      check_parser_errors(parser)
+      program = test_parse(input)
 
       program.statements.size.should eq 1
 
@@ -338,10 +311,7 @@ module Monkey::Parser
         "if (x < y) { x; } else { y; }",
       }.each do |input|
         it "for #{input}" do
-          l = Monkey::Lexer::Lexer.new(input)
-          parser = Parser.new(l)
-          program = parser.parse_program
-          check_parser_errors(parser)
+          program = test_parse(input)
 
           program.statements.size.should eq 1
 
@@ -383,10 +353,7 @@ module Monkey::Parser
         "fn(x, y) { x + y; }",
       }.each do |input|
         it "for #{input}" do
-          l = Monkey::Lexer::Lexer.new(input)
-          parser = Parser.new(l)
-          program = parser.parse_program
-          check_parser_errors(parser)
+          program = test_parse(input)
 
           program.statements.size.should eq 1
 
@@ -420,10 +387,7 @@ module Monkey::Parser
         {"fn(x, y, z) {};", ["x", "y", "z"]},
       }.each do |input, expected_params|
         it "for #{input}" do
-          l = Monkey::Lexer::Lexer.new(input)
-          parser = Parser.new(l)
-          program = parser.parse_program
-          check_parser_errors(parser)
+          program = test_parse(input)
 
           stmt = program.statements[0]
           if stmt.is_a?(Monkey::AST::ExpressionStatement)
@@ -445,10 +409,7 @@ module Monkey::Parser
     it "call expression parsing" do
       input = "add(1, 2 * 3, 4 + 5);"
 
-      l = Monkey::Lexer::Lexer.new(input)
-      parser = Parser.new(l)
-      program = parser.parse_program
-      check_parser_errors(parser)
+      program = test_parse(input)
 
       program.statements.size.should eq 1
 
@@ -470,10 +431,7 @@ module Monkey::Parser
     it "string literal expression" do
       input = %("hello world")
 
-      l = Monkey::Lexer::Lexer.new(input)
-      parser = Parser.new(l)
-      program = parser.parse_program
-      check_parser_errors(parser)
+      program = test_parse(input)
 
       program.statements.size.should eq 1
       stmt = program.statements[0]
@@ -500,6 +458,14 @@ def check_parser_errors(parser : Monkey::Parser::Parser)
   end
 
   "test".should eq "fail."
+end
+
+def test_parse(input : String) : Monkey::AST::Program
+  l = Monkey::Lexer::Lexer.new(input)
+  parser = Monkey::Parser::Parser.new(l)
+  program = parser.parse_program
+  check_parser_errors(parser)
+  program
 end
 
 def test_let_statement(stmt : Monkey::AST::Statement, name : String)
