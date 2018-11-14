@@ -272,4 +272,22 @@ module Monkey::AST
       "#{function.string}(#{@arguments.map(&.string).join(", ")})"
     end
   end
+
+  class StringLiteral < Expression
+    getter token : Token::Token, value : String
+
+    def initialize(@token : Token::Token, @value : String)
+    end
+
+    def expression_node
+    end
+
+    def token_literal
+      @token.literal
+    end
+
+    def string
+      @token.literal
+    end
+  end
 end

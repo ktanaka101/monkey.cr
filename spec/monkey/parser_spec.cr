@@ -466,6 +466,27 @@ module Monkey::Parser
         end
       end
     end
+
+    it "string literal expression" do
+      input = %("hello world")
+
+      l = Monkey::Lexer::Lexer.new(input)
+      parser = Parser.new(l)
+      program = parser.parse_program
+      check_parser_errors(parser)
+
+      program.statements.size.should eq 1
+      stmt = program.statements[0]
+
+      stmt.should be_a Monkey::AST::ExpressionStatement
+      if stmt.is_a?(Monkey::AST::ExpressionStatement)
+        literal = stmt.expression
+        literal.should be_a Monkey::AST::StringLiteral
+        if literal.is_a?(Monkey::AST::StringLiteral)
+          literal.value.should eq "hello world"
+        end
+      end
+    end
   end
 end
 

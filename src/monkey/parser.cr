@@ -306,6 +306,10 @@ module Monkey::Parser
       args
     end
 
+    def parse_string_literal : AST::StringLiteral
+      AST::StringLiteral.new(@cur_token, @cur_token.literal)
+    end
+
     def cur_token_is(token : Token::TokenType) : Bool
       @cur_token.type == token
     end
@@ -344,6 +348,8 @@ module Monkey::Parser
         ->parse_if_expression
       when Token::FUNCTION
         ->parse_function_literal
+      when Token::STRING
+        ->parse_string_literal
       end
     end
 
