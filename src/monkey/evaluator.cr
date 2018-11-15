@@ -159,31 +159,24 @@ module Monkey::Evaluator
     end
   end
 
-  private def self.eval_integer_infix_expression(operator : String, left : Monkey::Object::Object, right : Monkey::Object::Object) : Monkey::Object::Object
-    if !left.is_a?(Monkey::Object::Integer) || !right.is_a?(Monkey::Object::Integer)
-      return new_error("type mismatch: #{left.type} #{operator} #{right.type}")
-    end
-
-    left_val = left.value
-    right_val = right.value
-
+  private def self.eval_integer_infix_expression(operator : String, left : Monkey::Object::Integer, right : Monkey::Object::Integer) : Monkey::Object::Object
     case operator
     when "+"
-      Monkey::Object::Integer.new(left_val + right_val)
+      Monkey::Object::Integer.new(left.value + right.value)
     when "-"
-      Monkey::Object::Integer.new(left_val - right_val)
+      Monkey::Object::Integer.new(left.value - right.value)
     when "*"
-      Monkey::Object::Integer.new(left_val * right_val)
+      Monkey::Object::Integer.new(left.value * right.value)
     when "/"
-      Monkey::Object::Integer.new(left_val / right_val)
+      Monkey::Object::Integer.new(left.value / right.value)
     when "<"
-      native_bool_to_boolean_object(left_val < right_val)
+      native_bool_to_boolean_object(left.value < right.value)
     when ">"
-      native_bool_to_boolean_object(left_val > right_val)
+      native_bool_to_boolean_object(left.value > right.value)
     when "=="
-      native_bool_to_boolean_object(left_val == right_val)
+      native_bool_to_boolean_object(left.value == right.value)
     when "!="
-      native_bool_to_boolean_object(left_val != right_val)
+      native_bool_to_boolean_object(left.value != right.value)
     else
       new_error("unknown operator: #{left.type} #{operator} #{right.type}")
     end
