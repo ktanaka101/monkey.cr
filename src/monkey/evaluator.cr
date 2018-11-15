@@ -143,6 +143,8 @@ module Monkey::Evaluator
     case {left, right}
     when {Monkey::Object::Integer, Monkey::Object::Integer}
       eval_integer_infix_expression(operator, left, right)
+    when {Monkey::Object::String, Monkey::Object::String}
+      eval_string_infix_expression(operator, left, right)
     else
       case operator
       when "=="
@@ -180,6 +182,12 @@ module Monkey::Evaluator
     else
       new_error("unknown operator: #{left.type} #{operator} #{right.type}")
     end
+  end
+
+  private def self.eval_string_infix_expression(operator : String, left : Monkey::Object::String, right : Monkey::Object::String) : Monkey::Object::Object
+    return new_error("unknown operator: #{left.type} #{operator} #{right.type}") unless operator == "+"
+
+    Monkey::Object::String.new(left.value + right.value)
   end
 
   private def self.eval_if_expression(ie : Monkey::AST::IfExpression, env : Monkey::Object::Environment) : Monkey::Object::Object

@@ -133,6 +133,10 @@ module Monkey::Evaluator
           "unknown operator: BOOLEAN + BOOLEAN",
         },
         {"foobar", "identifier not found: foobar"},
+        {
+          %("Hello" - "World"),
+          "unknown operator: STRING - STRING",
+        },
       }.each do |input, expected|
         it "for #{input}" do
           evaluated = test_eval(input)
@@ -228,6 +232,19 @@ module Monkey::Evaluator
       {
         {
           %("Hello World!"),
+          "Hello World!",
+        },
+      }.each do |input, expected|
+        it "for #{input}" do
+          test_string_object(test_eval(input), expected)
+        end
+      end
+    end
+
+    describe "test string concatenation" do
+      {
+        {
+          %("Hello" + " " + "World!"),
           "Hello World!",
         },
       }.each do |input, expected|
