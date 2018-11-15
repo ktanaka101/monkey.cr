@@ -227,7 +227,8 @@ module Monkey::Evaluator
     describe "string literal" do
       {
         {
-          %("Hello World!"), "Hello World!",
+          %("Hello World!"),
+          "Hello World!",
         },
       }.each do |input, expected|
         it "for #{input}" do
