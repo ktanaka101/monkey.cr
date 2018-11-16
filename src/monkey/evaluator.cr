@@ -6,6 +6,21 @@ module Monkey::Evaluator
   FALSE = Monkey::Object::Boolean.new(false)
   NULL  = Monkey::Object::Null.new
 
+  Builtins = {
+    "len" => Monkey::Object::Builtin.new(
+      Monkey::Object::BuiltinFunction.new do |args|
+        return new_error("wrong number of arguments. got=#{args.size}, want=1") if args.size != 1
+
+        case arg = args[0]
+        when Monkey::Object::String
+          Monkey::Object::Integer.new(arg.value.size.to_i64)
+        else
+          new_error("argument to 'len' not supported, got #{args[0].type}")
+        end
+      end
+    ),
+  }
+
   def self.eval(node : Monkey::AST::Node, env : Monkey::Object::Environment) : Monkey::Object::Object
     case node
     when Monkey::AST::Program
@@ -228,7 +243,12 @@ module Monkey::Evaluator
 
   private def self.eval_identifier(node : Monkey::AST::Identifier, env : Monkey::Object::Environment) : Monkey::Object::Object
     ident = env[node.value]?
-    ident.nil? ? new_error("identifier not found: #{node.value}") : ident
+    return ident if ident
+
+    builtin = Builtins[node.value]?
+    return builtin if builtin
+
+    new_error("identifier not found: #{node.value}")
   end
 
   private def self.eval_expressions(exps : Array(Monkey::AST::Expression), env : Monkey::Object::Environment) : Array(Monkey::Object::Object)
@@ -244,11 +264,16 @@ module Monkey::Evaluator
   end
 
   private def self.apply_function(fn : Monkey::Object::Object, args : Array(Monkey::Object::Object)) : Monkey::Object::Object
-    return new_error("not a function: #{fn.type}") unless fn.is_a?(Monkey::Object::Function)
-
-    extended_env = extend_function_env(fn, args)
-    evaluated = eval(fn.body, extended_env)
-    unwrap_return_value(evaluated)
+    case fn
+    when Monkey::Object::Function
+      extended_env = extend_function_env(fn, args)
+      evaluated = eval(fn.body, extended_env)
+      unwrap_return_value(evaluated)
+    when Monkey::Object::Builtin
+      fn.fn.call(args)
+    else
+      return new_error("not a function: #{fn.type}")
+    end
   end
 
   private def self.extend_function_env(fn : Monkey::Object::Function, args : Array(Monkey::Object::Object)) : Monkey::Object::Environment

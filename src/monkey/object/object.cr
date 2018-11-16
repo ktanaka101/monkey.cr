@@ -1,5 +1,6 @@
 module Monkey::Object
   alias ObjectType = ::String
+  alias BuiltinFunction = Array(Object) -> Object
 
   INTEGER_OBJ      = "INTEGER"
   BOOLEAN_OBJ      = "BOOLEAN"
@@ -8,6 +9,7 @@ module Monkey::Object
   FUNCTION_OBJ     = "FUNCTION"
   ERROR_OBJ        = "ERROR"
   STRING_OBJ       = "STRING"
+  BUILTIN_OBJ      = "BUILTIN"
 
   abstract class Object
     abstract def type : ObjectType
@@ -111,6 +113,21 @@ module Monkey::Object
 
     def inspect
       @value
+    end
+  end
+
+  class Builtin < Object
+    getter fn : BuiltinFunction
+
+    def initialize(@fn : BuiltinFunction)
+    end
+
+    def type
+      BUILTIN_OBJ
+    end
+
+    def inspect
+      "buildin function"
     end
   end
 end

@@ -253,8 +253,35 @@ module Monkey::Evaluator
         end
       end
     end
+
+    describe "test_builtin_functions" do
+      {
+        {
+          %(len("")), 0_i64
+        },
+        {
+          %(len("four")), 4_i64
+        },
+        {
+          %(len("hello world")), 11_i64,
+        },
+        {
+          %(len(1)), TestError.new("argument to 'len' not supported, got INTEGER")
+        },
+        {
+          %(len("one", "two")), TestError.new("wrong number of arguments. got=2, want=1")
+        }
+      }.each do |input, expected|
+        it "for #{input}" do
+          evaluated = test_eval(input)
+          test_object(evaluated, expected)
+        end
+      end
+    end
   end
 end
+
+record TestError, message : String
 
 def test_object(object : Monkey::Object::Object, expected)
   case expected
@@ -262,8 +289,12 @@ def test_object(object : Monkey::Object::Object, expected)
     test_boolean_object(object, expected)
   when Int64
     test_integer_object(object, expected)
+  when String
+    test_string_object(object, expected)
   when Nil
     test_null_object(object)
+  when TestError
+    test_error_object(object, expected)
   else
     "it test is ".should be_false
   end
@@ -294,4 +325,11 @@ define_test_object String, String
 
 def test_null_object(object : Monkey::Object::Object)
   object.should be_a Monkey::Object::Null
+end
+
+def test_error_object(object : Monkey::Object::Object, expected : TestError)
+  object.should be_a Monkey::Object::Error
+  if object.is_a?(Monkey::Object::Error)
+    object.message.should eq expected.message
+  end
 end
