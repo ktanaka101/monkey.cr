@@ -257,20 +257,92 @@ module Monkey::Evaluator
     describe "builtin functions" do
       {
         {
-          %(len("")), 0_i64
+          %(len("")), 0_i64,
         },
         {
-          %(len("four")), 4_i64
+          %(len("four")), 4_i64,
         },
         {
           %(len("hello world")), 11_i64,
         },
         {
-          %(len(1)), TestError.new("argument to 'len' not supported, got INTEGER")
+          %(len(1)), TestError.new("argument to 'len' not supported, got INTEGER"),
         },
         {
-          %(len("one", "two")), TestError.new("wrong number of arguments. got=2, want=1")
-        }
+          %(len("one", "two")), TestError.new("wrong number of arguments. got=2, want=1"),
+        },
+      }.each do |input, expected|
+        it "for #{input}" do
+          evaluated = test_eval(input)
+          test_object(evaluated, expected)
+        end
+      end
+    end
+
+    describe "array literals" do
+      {
+        {
+          "[1, 2 * 2, 3 + 3]",
+          {1_i64, 4_i64, 6_i64},
+        },
+      }.each do |input, expected|
+        it "for #{input}" do
+          evaluated = test_eval(input)
+
+          evaluated.should be_a Monkey::Object::Array
+          if evaluated.is_a?(Monkey::Object::Array)
+            evaluated.elements.size.should eq expected.size
+
+            evaluated.elements.each_with_index do |element, i|
+              test_object(element, expected[i])
+            end
+          end
+        end
+      end
+    end
+
+    describe "array index expressions" do
+      {
+        {
+          "[1, 2, 3][0]",
+          1_i64,
+        },
+        {
+          "[1, 2, 3][1]",
+          2_i64,
+        },
+        {
+          "[1, 2, 3][2]",
+          3_i64,
+        },
+        {
+          "let i = 0; [1][i];",
+          1_i64,
+        },
+        {
+          "[1, 2, 3][1 + 1];",
+          3_i64,
+        },
+        {
+          "let myArray = [1, 2, 3]; myArray[2];",
+          3_i64,
+        },
+        {
+          "let myArray = [1, 2, 3]; myArray[0] + myArray[1] + myArray[2];",
+          6_i64,
+        },
+        {
+          "let myArray = [1, 2, 3]; let i = myArray[0]; myArray[i];",
+          2_i64,
+        },
+        {
+          "[1, 2, 3][3]",
+          nil,
+        },
+        {
+          "[1, 2, 3][-1]",
+          nil,
+        },
       }.each do |input, expected|
         it "for #{input}" do
           evaluated = test_eval(input)

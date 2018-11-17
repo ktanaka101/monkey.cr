@@ -69,6 +69,16 @@ module Monkey::Evaluator
       apply_function(function, args)
     when Monkey::AST::StringLiteral
       Monkey::Object::String.new(node.value)
+    when Monkey::AST::ArrayLiteral
+      elements = eval_expressions(node.elements, env)
+      return elements[0] if elements.size == 1 && is_error?(elements[0])
+      Monkey::Object::Array.new(elements)
+    when Monkey::AST::IndexExpression
+      left = eval(node.left, env)
+      return left if is_error?(left)
+      index = eval(node.index, env)
+      return index if is_error?(index)
+      eval_index_expression(left, index)
     else
       new_error("unknown node: #{node}")
     end
@@ -288,5 +298,22 @@ module Monkey::Evaluator
 
   private def self.unwrap_return_value(obj : Monkey::Object::Object) : Monkey::Object::Object
     obj.is_a?(Monkey::Object::ReturnValue) ? obj.value : obj
+  end
+
+  private def self.eval_index_expression(left : Monkey::Object::Object, index : Object::Object) : Monkey::Object::Object
+    if left.is_a?(Monkey::Object::Array) && index.is_a?(Monkey::Object::Integer)
+      eval_array_index_expression(left, index)
+    else
+      new_error("index operator not supported: #{left.type}")
+    end
+  end
+
+  private def self.eval_array_index_expression(array : Monkey::Object::Array, index : Monkey::Object::Integer) : Monkey::Object::Object
+    idx = index.value
+    max = (array.elements.size - 1).to_i64
+
+    return NULL if idx < 0 || idx > max
+
+    array.elements[idx]
   end
 end

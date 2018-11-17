@@ -1,6 +1,6 @@
 module Monkey::Object
   alias ObjectType = ::String
-  alias BuiltinFunction = Array(Object) -> Object
+  alias BuiltinFunction = ::Array(Object) -> Object
 
   INTEGER_OBJ      = "INTEGER"
   BOOLEAN_OBJ      = "BOOLEAN"
@@ -10,6 +10,7 @@ module Monkey::Object
   ERROR_OBJ        = "ERROR"
   STRING_OBJ       = "STRING"
   BUILTIN_OBJ      = "BUILTIN"
+  ARRAY_OBJ        = "ARRAY"
 
   abstract class Object
     abstract def type : ObjectType
@@ -87,9 +88,9 @@ module Monkey::Object
   end
 
   class Function < Object
-    getter parameters : Array(Monkey::AST::Identifier), body : Monkey::AST::BlockStatement, env : Environment
+    getter parameters : ::Array(Monkey::AST::Identifier), body : Monkey::AST::BlockStatement, env : Environment
 
-    def initialize(@parameters : Array(Monkey::AST::Identifier), @body : Monkey::AST::BlockStatement, @env : Environment)
+    def initialize(@parameters : ::Array(Monkey::AST::Identifier), @body : Monkey::AST::BlockStatement, @env : Environment)
     end
 
     def type
@@ -128,6 +129,21 @@ module Monkey::Object
 
     def inspect
       "buildin function"
+    end
+  end
+
+  class Array < Object
+    getter elements
+
+    def initialize(@elements : ::Array(Object))
+    end
+
+    def type
+      ARRAY_OBJ
+    end
+
+    def inspect
+      %([#{@elements.map(&.inspect).join(", ")}])
     end
   end
 end
