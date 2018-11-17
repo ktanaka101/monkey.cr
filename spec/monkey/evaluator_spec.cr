@@ -241,7 +241,7 @@ module Monkey::Evaluator
       end
     end
 
-    describe "test string concatenation" do
+    describe "string concatenation" do
       {
         {
           %("Hello" + " " + "World!"),
@@ -254,7 +254,7 @@ module Monkey::Evaluator
       end
     end
 
-    describe "test_builtin_functions" do
+    describe "builtin functions" do
       {
         {
           %(len("")), 0_i64
