@@ -20,6 +20,7 @@ module Monkey::Lexer
         {Monkey::Token::INT, "10"}, {Monkey::Token::NOT_EQ, "!="}, {Monkey::Token::INT, "9"}, {Monkey::Token::SEMICOLON, ";"},
         {Monkey::Token::STRING, "foobar"},
         {Monkey::Token::STRING, "foo bar"},
+        {Monkey::Token::LBRACKET, "["}, {Monkey::Token::INT, "1"}, {Monkey::Token::COMMA, ","}, {Monkey::Token::INT, "2"}, {Monkey::Token::RBRACKET, "]"}, {Monkey::Token::SEMICOLON, ";"},
         {Monkey::Token::EOF, ""},
       }
 
@@ -45,6 +46,7 @@ module Monkey::Lexer
         10 != 9;
         "foobar"
         "foo bar"
+        [1, 2];
       STRING
 
       l = Lexer.new(input)

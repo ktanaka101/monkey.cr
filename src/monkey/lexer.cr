@@ -118,6 +118,10 @@ module Monkey::Lexer
                 Token::Token.new(Token::LBRACE, str)
               when '}'
                 Token::Token.new(Token::RBRACE, str)
+              when '['
+                Token::Token.new(Token::LBRACKET, str)
+              when ']'
+                Token::Token.new(Token::RBRACKET, str)
               when '"'
                 Token::Token.new(Token::STRING, read_string)
               else
