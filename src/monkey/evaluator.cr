@@ -211,7 +211,7 @@ module Monkey::Evaluator
 
     alternative = ie.alternative
 
-    if is_truthy(condition)
+    if is_truthy?(condition)
       eval(ie.consequence, env)
     elsif alternative
       eval(alternative, env)
@@ -220,7 +220,7 @@ module Monkey::Evaluator
     end
   end
 
-  private def self.is_truthy(obj : Monkey::Object::Object) : Bool
+  private def self.is_truthy?(obj : Monkey::Object::Object) : Bool
     case obj
     when NULL
       false

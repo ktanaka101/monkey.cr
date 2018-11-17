@@ -68,18 +68,18 @@ module Monkey::Parser
     def parse_let_statement : AST::LetStatement?
       token = @cur_token
 
-      return nil unless expect_peek(Token::IDENT)
+      return nil unless expect_peek?(Token::IDENT)
 
       name = AST::Identifier.new(@cur_token, @cur_token.literal)
 
-      return nil unless expect_peek(Token::ASSIGN)
+      return nil unless expect_peek?(Token::ASSIGN)
 
       next_token
 
       value = parse_expression(Priority::LOWEST)
       return nil if value.nil?
 
-      next_token if peek_token_is(Token::SEMICOLON)
+      next_token if peek_token_is?(Token::SEMICOLON)
 
       AST::LetStatement.new(token, name, value)
     end
@@ -92,7 +92,7 @@ module Monkey::Parser
       return_value = parse_expression(Priority::LOWEST)
       return nil if return_value.nil?
 
-      next_token if peek_token_is(Token::SEMICOLON)
+      next_token if peek_token_is?(Token::SEMICOLON)
 
       AST::ReturnStatement.new(token, return_value)
     end
@@ -102,7 +102,7 @@ module Monkey::Parser
       exp = parse_expression(Priority::LOWEST)
       return nil if exp.nil?
 
-      next_token if peek_token_is(Token::SEMICOLON)
+      next_token if peek_token_is?(Token::SEMICOLON)
 
       return AST::ExpressionStatement.new(token, exp)
     end
@@ -121,7 +121,7 @@ module Monkey::Parser
 
       return nil if left_exp.nil?
 
-      while !peek_token_is(Token::SEMICOLON) && precedende < peek_precedence
+      while !peek_token_is?(Token::SEMICOLON) && precedende < peek_precedence
         infix = infix_parse_fns(@peek_token.type)
         return left_exp if infix.nil?
 
@@ -149,14 +149,14 @@ module Monkey::Parser
     end
 
     def parse_bool_literal : AST::Boolean?
-      AST::Boolean.new(@cur_token, cur_token_is(Token::TRUE))
+      AST::Boolean.new(@cur_token, cur_token_is?(Token::TRUE))
     end
 
     def parse_grouped_expression : AST::Expression?
       next_token
 
       exp = parse_expression(Priority::LOWEST)
-      return nil unless expect_peek(Token::RPAREN)
+      return nil unless expect_peek?(Token::RPAREN)
 
       exp
     end
@@ -193,23 +193,23 @@ module Monkey::Parser
 
     def parse_if_expression : AST::IfExpression?
       token = @cur_token
-      return nil unless expect_peek(Token::LPAREN)
+      return nil unless expect_peek?(Token::LPAREN)
 
       next_token
       condition = parse_expression(Priority::LOWEST)
 
       return nil if condition.nil?
 
-      return nil unless expect_peek(Token::RPAREN)
+      return nil unless expect_peek?(Token::RPAREN)
 
-      return nil unless expect_peek(Token::LBRACE)
+      return nil unless expect_peek?(Token::LBRACE)
 
       consequence = parse_block_statement
 
-      alternative = if peek_token_is(Token::ELSE)
+      alternative = if peek_token_is?(Token::ELSE)
                       next_token
 
-                      return nil unless expect_peek(Token::LBRACE)
+                      return nil unless expect_peek?(Token::LBRACE)
 
                       parse_block_statement
                     else
@@ -225,7 +225,7 @@ module Monkey::Parser
 
       next_token
 
-      while !cur_token_is(Token::RBRACE) && !cur_token_is(Token::EOF)
+      while !cur_token_is?(Token::RBRACE) && !cur_token_is?(Token::EOF)
         stmt = parse_statement
         statements << stmt if stmt
         next_token
@@ -237,12 +237,12 @@ module Monkey::Parser
     def parse_function_literal : AST::FunctionLiteral?
       token = @cur_token
 
-      return nil unless expect_peek(Token::LPAREN)
+      return nil unless expect_peek?(Token::LPAREN)
 
       params = parse_function_parameters
 
       return nil if params.nil?
-      return nil unless expect_peek(Token::LBRACE)
+      return nil unless expect_peek?(Token::LBRACE)
 
       body = parse_block_statement
 
@@ -252,7 +252,7 @@ module Monkey::Parser
     def parse_function_parameters : Array(AST::Identifier)?
       identifiers = [] of AST::Identifier
 
-      if peek_token_is(Token::RPAREN)
+      if peek_token_is?(Token::RPAREN)
         next_token
         return identifiers
       end
@@ -262,14 +262,14 @@ module Monkey::Parser
       ident = AST::Identifier.new(@cur_token, @cur_token.literal)
       identifiers << ident
 
-      while peek_token_is(Token::COMMA)
+      while peek_token_is?(Token::COMMA)
         next_token
         next_token
         ident = AST::Identifier.new(@cur_token, @cur_token.literal)
         identifiers << ident
       end
 
-      return nil unless expect_peek(Token::RPAREN)
+      return nil unless expect_peek?(Token::RPAREN)
 
       identifiers
     end
@@ -285,7 +285,7 @@ module Monkey::Parser
     def parse_expression_list(end_token : Token::TokenType) : Array(AST::Expression)?
       list = [] of AST::Expression
 
-      if peek_token_is(end_token)
+      if peek_token_is?(end_token)
         next_token
         return list
       end
@@ -295,7 +295,7 @@ module Monkey::Parser
       return nil if exp.nil?
       list << exp
 
-      while peek_token_is(Token::COMMA)
+      while peek_token_is?(Token::COMMA)
         next_token
         next_token
         exp = parse_expression(Priority::LOWEST)
@@ -303,7 +303,7 @@ module Monkey::Parser
         list << exp
       end
 
-      return nil unless expect_peek(end_token)
+      return nil unless expect_peek?(end_token)
 
       list
     end
@@ -327,21 +327,21 @@ module Monkey::Parser
 
       index = parse_expression(Priority::LOWEST)
       return nil if index.nil?
-      return nil unless expect_peek(Token::RBRACKET)
+      return nil unless expect_peek?(Token::RBRACKET)
 
       AST::IndexExpression.new(token, left, index)
     end
 
-    def cur_token_is(token : Token::TokenType) : Bool
+    def cur_token_is?(token : Token::TokenType) : Bool
       @cur_token.type == token
     end
 
-    def peek_token_is(token : Token::TokenType) : Bool
+    def peek_token_is?(token : Token::TokenType) : Bool
       @peek_token.type == token
     end
 
-    def expect_peek(token : Token::TokenType) : Bool
-      if peek_token_is(token)
+    def expect_peek?(token : Token::TokenType) : Bool
+      if peek_token_is?(token)
         next_token
         true
       else
