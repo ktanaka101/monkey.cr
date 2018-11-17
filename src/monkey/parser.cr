@@ -14,6 +14,7 @@ module Monkey::Parser
       PRODUCT
       PREFIX
       CALL
+      INDEX
     end
 
     PRECEDENCES = {
@@ -26,6 +27,7 @@ module Monkey::Parser
       Token::SLASH    => Priority::PRODUCT,
       Token::ASTERISK => Priority::PRODUCT,
       Token::LPAREN   => Priority::CALL,
+      Token::LBRACKET => Priority::INDEX,
     }
 
     def initialize(@lexer, @errors = [] of String)
@@ -274,40 +276,60 @@ module Monkey::Parser
 
     def parse_call_expression(function : AST::Expression) : AST::CallExpression?
       token = @cur_token
-      arguments = parse_call_arguments
+      arguments = parse_expression_list(Token::RPAREN)
       return nil if arguments.nil?
 
       AST::CallExpression.new(token, function, arguments)
     end
 
-    def parse_call_arguments : Array(AST::Expression)?
-      args = [] of AST::Expression
+    def parse_expression_list(end_token : Token::TokenType) : Array(AST::Expression)?
+      list = [] of AST::Expression
 
-      if peek_token_is(Token::RPAREN)
+      if peek_token_is(end_token)
         next_token
-        return args
+        return list
       end
 
       next_token
       exp = parse_expression(Priority::LOWEST)
       return nil if exp.nil?
-      args << exp
+      list << exp
 
       while peek_token_is(Token::COMMA)
         next_token
         next_token
         exp = parse_expression(Priority::LOWEST)
         return nil if exp.nil?
-        args << exp
+        list << exp
       end
 
-      return nil unless expect_peek(Token::RPAREN)
+      return nil unless expect_peek(end_token)
 
-      args
+      list
     end
 
     def parse_string_literal : AST::StringLiteral
       AST::StringLiteral.new(@cur_token, @cur_token.literal)
+    end
+
+    def parse_array_literal : AST::ArrayLiteral?
+      token = @cur_token
+      elements = parse_expression_list(Token::RBRACKET)
+      return nil if elements.nil?
+
+      AST::ArrayLiteral.new(token, elements)
+    end
+
+    def parse_index_expression(left : AST::Expression) : AST::IndexExpression?
+      token = @cur_token
+
+      next_token
+
+      index = parse_expression(Priority::LOWEST)
+      return nil if index.nil?
+      return nil unless expect_peek(Token::RBRACKET)
+
+      AST::IndexExpression.new(token, left, index)
     end
 
     def cur_token_is(token : Token::TokenType) : Bool
@@ -350,6 +372,8 @@ module Monkey::Parser
         ->parse_function_literal
       when Token::STRING
         ->parse_string_literal
+      when Token::LBRACKET
+        ->parse_array_literal
       end
     end
 
@@ -359,6 +383,8 @@ module Monkey::Parser
         ->parse_infix_expression(AST::Expression)
       when Token::LPAREN
         ->parse_call_expression(AST::Expression)
+      when Token::LBRACKET
+        ->parse_index_expression(AST::Expression)
       end
     end
 

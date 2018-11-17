@@ -268,6 +268,14 @@ module Monkey::Parser
           "add(a + b + c * d / f  + g)",
           "add((((a + b) + ((c * d) / f)) + g))",
         },
+        {
+          "a * [1, 2, 3, 4][b * c] * d",
+          "((a * ([1, 2, 3, 4][(b * c)])) * d)",
+        },
+        {
+          "add(a * b[2], b[1], 2 * [1, 2][1])",
+          "add((a * (b[2])), (b[1]), (2 * ([1, 2][1])))",
+        },
       }.each do |input, expected|
         it "for #{input}" do
           program = test_parse(input)
@@ -442,6 +450,71 @@ module Monkey::Parser
         literal.should be_a Monkey::AST::StringLiteral
         if literal.is_a?(Monkey::AST::StringLiteral)
           literal.value.should eq "hello world"
+        end
+      end
+    end
+
+    describe "parsing array literals" do
+      {
+        {
+          "[1, 2 * 2, 3 + 3]",
+          { {1}, {2, "*", 2}, {3, "+", 3} },
+        },
+      }.each do |input, expected|
+        it "for #{input}" do
+          program = test_parse(input)
+
+          program.statements.size.should eq 1
+          stmt = program.statements[0]
+
+          stmt.should be_a Monkey::AST::ExpressionStatement
+          if stmt.is_a?(Monkey::AST::ExpressionStatement)
+            array = stmt.expression
+            array.should be_a Monkey::AST::ArrayLiteral
+            if array.is_a?(Monkey::AST::ArrayLiteral)
+              array.elements.size.should eq 3
+              array.elements.each_with_index do |element, i|
+                expect = expected[i]
+                if expect.is_a?(Tuple(Int32))
+                  test_literal_expression(element, *expect)
+                else
+                  test_infix_expression(element, *expect)
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+
+    describe "parsing index expressions" do
+      {
+        {
+          "myArray[1 + 1]",
+          {"myArray", {1, "+", 1}},
+        },
+      }.each do |input, expected|
+        it "for #{input}" do
+          program = test_parse(input)
+
+          program.statements.size.should eq 1
+          stmt = program.statements[0]
+
+          stmt.should be_a Monkey::AST::ExpressionStatement
+          if stmt.is_a?(Monkey::AST::ExpressionStatement)
+            index = stmt.expression
+            index.should be_a Monkey::AST::IndexExpression
+            if index.is_a?(Monkey::AST::IndexExpression)
+              test_indentifier(index.left, expected[0])
+
+              expect = expected[1]
+              if expect.is_a?(Tuple(Int32))
+                test_literal_expression(index.index, *expect)
+              else
+                test_infix_expression(index.index, *expect)
+              end
+            end
+          end
         end
       end
     end

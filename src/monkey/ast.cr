@@ -290,4 +290,40 @@ module Monkey::AST
       @token.literal
     end
   end
+
+  class ArrayLiteral < Expression
+    getter token : Token::Token, elements : Array(Expression)
+
+    def initialize(@token : Token::Token, @elements : Array(Expression))
+    end
+
+    def expression_node
+    end
+
+    def token_literal
+      @token.literal
+    end
+
+    def string
+      %([#{@elements.map(&.string).join(", ")}])
+    end
+  end
+
+  class IndexExpression < Expression
+    getter token, left, index
+
+    def initialize(@token : Token::Token, @left : Expression, @index : Expression)
+    end
+
+    def expression_node
+    end
+
+    def token_literal
+      @token.literal
+    end
+
+    def string
+      "(#{@left.string}[#{@index.string}])"
+    end
+  end
 end
