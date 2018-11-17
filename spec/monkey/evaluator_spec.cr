@@ -255,26 +255,152 @@ module Monkey::Evaluator
     end
 
     describe "builtin functions" do
-      {
+      describe "len" do
         {
-          %(len("")), 0_i64,
-        },
+          {
+            %(len("")), 0_i64,
+          },
+          {
+            %(len("four")), 4_i64,
+          },
+          {
+            %(len("hello world")), 11_i64,
+          },
+          {
+            %(len(1)), TestError.new("argument to 'len' not supported, got INTEGER"),
+          },
+          {
+            %(len("one", "two")), TestError.new("wrong number of arguments. got=2, want=1"),
+          },
+          {
+            %(len([])), 0_i64,
+          },
+          {
+            %(len([1, "hello", 33])), 3_i64,
+          },
+        }.each do |input, expected|
+          it "for #{input}" do
+            evaluated = test_eval(input)
+            test_object(evaluated, expected)
+          end
+        end
+      end
+
+      describe "first" do
         {
-          %(len("four")), 4_i64,
-        },
+          {
+            %(first([1, 2, 3])), 1_i64,
+          },
+          {
+            %(first(["one", "two"])), "one",
+          },
+          {
+            %(first([])), nil,
+          },
+          {
+            %(let a = [1, 2, 3]; first(a); first(a) == first(a)), true,
+          },
+          {
+            %(first([1, 2, 3], [1, 2, 3])), TestError.new("wrong number of arguments. got=2, want=1"),
+          },
+          {
+            %(first(1)), TestError.new("argument to 'first' must be ARRAY, got INTEGER"),
+          },
+        }.each do |input, expected|
+          it "for #{input}" do
+            evaluated = test_eval(input)
+            test_object(evaluated, expected)
+          end
+        end
+      end
+
+      describe "last" do
         {
-          %(len("hello world")), 11_i64,
-        },
+          {
+            %(last([1, 2, 3])), 3_i64,
+          },
+          {
+            %(last(["one", "two"])), "two",
+          },
+          {
+            %(last([])), nil,
+          },
+          {
+            %(let a = [1, 2, 3]; last(a); last(a) == last(a)), true,
+          },
+          {
+            %(last([1, 2, 3], [1, 2, 3])), TestError.new("wrong number of arguments. got=2, want=1"),
+          },
+          {
+            %(last(1)), TestError.new("argument to 'last' must be ARRAY, got INTEGER"),
+          },
+        }.each do |input, expected|
+          it "for #{input}" do
+            evaluated = test_eval(input)
+            test_object(evaluated, expected)
+          end
+        end
+      end
+
+      describe "rest" do
         {
-          %(len(1)), TestError.new("argument to 'len' not supported, got INTEGER"),
-        },
+          {
+            %(rest([1, 2, 3])), [2_i64, 3_i64],
+          },
+          {
+            %(rest(["one", "two"])), ["two"],
+          },
+          {
+            %(rest([])), nil,
+          },
+          {
+            %(let a = [1, 2, 3, 4]; rest(rest(a));), [3_i64, 4_i64],
+          },
+          {
+            %(let a = [1, 2, 3, 4]; rest(rest(a)); rest(rest(rest(rest(rest(a)))));), nil,
+          },
+          {
+            %(rest([1, 2, 3], [1, 2, 3])), TestError.new("wrong number of arguments. got=2, want=1"),
+          },
+          {
+            %(rest(1)), TestError.new("argument to 'rest' must be ARRAY, got INTEGER"),
+          },
+        }.each do |input, expected|
+          it "for #{input}" do
+            evaluated = test_eval(input)
+            test_object(evaluated, expected)
+          end
+        end
+      end
+
+      describe "push" do
         {
-          %(len("one", "two")), TestError.new("wrong number of arguments. got=2, want=1"),
-        },
-      }.each do |input, expected|
-        it "for #{input}" do
-          evaluated = test_eval(input)
-          test_object(evaluated, expected)
+          {
+            %(push([1, 2, 3], 4)), [1_i64, 2_i64, 3_i64, 4_i64],
+          },
+          {
+            %(push([1, 2, 3], 3)), [1_i64, 2_i64, 3_i64, 3_i64],
+          },
+          {
+            %(push([1, 2, 3], [4, 5])), [1_i64, 2_i64, 3_i64, [4_i64, 5_i64]],
+          },
+          {
+            %(push([], 1)), [1_i64],
+          },
+          {
+            %(let a = [1, 2]; push(push(a, 3), 4);), [1_i64, 2_i64, 3_i64, 4_i64],
+          },
+          {
+            %(push([1, 2, 3], 1, 2)), TestError.new("wrong number of arguments. got=3, want=2"),
+          },
+          {
+            %(push(1, 2)), TestError.new("argument to 'push' must be ARRAY, got INTEGER"),
+          },
+        }.each do |input, expected|
+          it "for #{input}" do
+            evaluated = test_eval(input)
+            test_object(evaluated, expected)
+          end
         end
       end
     end
@@ -365,6 +491,8 @@ def test_object(object : Monkey::Object::Object, expected)
     test_string_object(object, expected)
   when Nil
     test_null_object(object)
+  when Array
+    test_array_object(object, expected)
   when TestError
     test_error_object(object, expected)
   else
@@ -403,5 +531,14 @@ def test_error_object(object : Monkey::Object::Object, expected : TestError)
   object.should be_a Monkey::Object::Error
   if object.is_a?(Monkey::Object::Error)
     object.message.should eq expected.message
+  end
+end
+
+def test_array_object(object : Monkey::Object::Object, expected : Array)
+  object.should be_a Monkey::Object::Array
+  if object.is_a?(Monkey::Object::Array)
+    object.elements.each_with_index do |element, i|
+      test_object(element, expected[i])
+    end
   end
 end

@@ -14,9 +14,50 @@ module Monkey::Evaluator
         case arg = args[0]
         when Object::String
           Object::Integer.new(arg.value.size.to_i64)
+        when Object::Array
+          Object::Integer.new(arg.elements.size.to_i64)
         else
           new_error("argument to 'len' not supported, got #{args[0].type}")
         end
+      end
+    ),
+    "first" => Object::Builtin.new(
+      Object::BuiltinFunction.new do |args|
+        return new_error("wrong number of arguments. got=#{args.size}, want=1") if args.size != 1
+        arr = args[0]
+        return new_error("argument to 'first' must be ARRAY, got #{args[0].type}") unless arr.is_a?(Object::Array)
+        return NULL if arr.elements.size == 0
+
+        return arr.elements[0]
+      end
+    ),
+    "last" => Object::Builtin.new(
+      Object::BuiltinFunction.new do |args|
+        return new_error("wrong number of arguments. got=#{args.size}, want=1") if args.size != 1
+        arr = args[0]
+        return new_error("argument to 'last' must be ARRAY, got #{args[0].type}") unless arr.is_a?(Object::Array)
+        return NULL if arr.elements.size == 0
+
+        return arr.elements[-1]
+      end
+    ),
+    "rest" => Object::Builtin.new(
+      Object::BuiltinFunction.new do |args|
+        return new_error("wrong number of arguments. got=#{args.size}, want=1") if args.size != 1
+        arr = args[0]
+        return new_error("argument to 'rest' must be ARRAY, got #{args[0].type}") unless arr.is_a?(Object::Array)
+        return NULL if arr.elements.size == 0
+
+        Object::Array.new(arr.elements[1..-1])
+      end
+    ),
+    "push" => Object::Builtin.new(
+      Object::BuiltinFunction.new do |args|
+        return new_error("wrong number of arguments. got=#{args.size}, want=2") if args.size != 2
+        arr = args[0]
+        return new_error("argument to 'push' must be ARRAY, got #{args[0].type}") unless arr.is_a?(Object::Array)
+
+        Object::Array.new(arr.elements + [args[1]])
       end
     ),
   }
