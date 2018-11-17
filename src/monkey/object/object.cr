@@ -88,9 +88,9 @@ module Monkey::Object
   end
 
   class Function < Object
-    getter parameters : ::Array(Monkey::AST::Identifier), body : Monkey::AST::BlockStatement, env : Environment
+    getter parameters : ::Array(AST::Identifier), body : AST::BlockStatement, env : Environment
 
-    def initialize(@parameters : ::Array(Monkey::AST::Identifier), @body : Monkey::AST::BlockStatement, @env : Environment)
+    def initialize(@parameters : ::Array(AST::Identifier), @body : AST::BlockStatement, @env : Environment)
     end
 
     def type

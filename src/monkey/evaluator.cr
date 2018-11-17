@@ -2,18 +2,18 @@ require "./ast"
 require "./object/*"
 
 module Monkey::Evaluator
-  TRUE  = Monkey::Object::Boolean.new(true)
-  FALSE = Monkey::Object::Boolean.new(false)
-  NULL  = Monkey::Object::Null.new
+  TRUE  = Object::Boolean.new(true)
+  FALSE = Object::Boolean.new(false)
+  NULL  = Object::Null.new
 
   Builtins = {
-    "len" => Monkey::Object::Builtin.new(
-      Monkey::Object::BuiltinFunction.new do |args|
+    "len" => Object::Builtin.new(
+      Object::BuiltinFunction.new do |args|
         return new_error("wrong number of arguments. got=#{args.size}, want=1") if args.size != 1
 
         case arg = args[0]
-        when Monkey::Object::String
-          Monkey::Object::Integer.new(arg.value.size.to_i64)
+        when Object::String
+          Object::Integer.new(arg.value.size.to_i64)
         else
           new_error("argument to 'len' not supported, got #{args[0].type}")
         end
@@ -21,59 +21,59 @@ module Monkey::Evaluator
     ),
   }
 
-  def self.eval(node : Monkey::AST::Node, env : Monkey::Object::Environment) : Monkey::Object::Object
+  def self.eval(node : AST::Node, env : Object::Environment) : Object::Object
     case node
-    when Monkey::AST::Program
+    when AST::Program
       eval_program(node, env)
-    when Monkey::AST::ExpressionStatement
+    when AST::ExpressionStatement
       eval(node.expression, env)
-    when Monkey::AST::IntegerLiteral
-      Monkey::Object::Integer.new(node.value)
-    when Monkey::AST::Boolean
+    when AST::IntegerLiteral
+      Object::Integer.new(node.value)
+    when AST::Boolean
       native_bool_to_boolean_object(node.value)
-    when Monkey::AST::PrefixExpression
+    when AST::PrefixExpression
       right = eval(node.right, env)
       return right if is_error?(right)
       eval_prefix_expression(node.operator, right)
-    when Monkey::AST::InfixExpression
+    when AST::InfixExpression
       left = eval(node.left, env)
       return left if is_error?(left)
       right = eval(node.right, env)
       return right if is_error?(right)
       eval_infix_expression(node.operator, left, right)
-    when Monkey::AST::BlockStatement
+    when AST::BlockStatement
       eval_block_statement(node, env)
-    when Monkey::AST::IfExpression
+    when AST::IfExpression
       eval_if_expression(node, env)
-    when Monkey::AST::ReturnStatement
+    when AST::ReturnStatement
       val = eval(node.return_value, env)
       return val if is_error?(val)
-      Monkey::Object::ReturnValue.new(val)
-    when Monkey::AST::LetStatement
+      Object::ReturnValue.new(val)
+    when AST::LetStatement
       val = eval(node.value, env)
       return val if is_error?(val)
       env[node.name.value] = val
       NULL
-    when Monkey::AST::Identifier
+    when AST::Identifier
       eval_identifier(node, env)
-    when Monkey::AST::FunctionLiteral
+    when AST::FunctionLiteral
       params = node.parameters
       body = node.body
-      Monkey::Object::Function.new(params, body, env)
-    when Monkey::AST::CallExpression
+      Object::Function.new(params, body, env)
+    when AST::CallExpression
       function = eval(node.function, env)
       return function if is_error?(function)
       args = eval_expressions(node.arguments, env)
       return args[0] if args.size == 1 && is_error?(args[0])
 
       apply_function(function, args)
-    when Monkey::AST::StringLiteral
-      Monkey::Object::String.new(node.value)
-    when Monkey::AST::ArrayLiteral
+    when AST::StringLiteral
+      Object::String.new(node.value)
+    when AST::ArrayLiteral
       elements = eval_expressions(node.elements, env)
       return elements[0] if elements.size == 1 && is_error?(elements[0])
-      Monkey::Object::Array.new(elements)
-    when Monkey::AST::IndexExpression
+      Object::Array.new(elements)
+    when AST::IndexExpression
       left = eval(node.left, env)
       return left if is_error?(left)
       index = eval(node.index, env)
@@ -86,16 +86,16 @@ module Monkey::Evaluator
 
   # Last statement is return value for eval
   # If return statement exists then return for return statement value
-  private def self.eval_program(program : Monkey::AST::Program, env : Monkey::Object::Environment) : Monkey::Object::Object
+  private def self.eval_program(program : AST::Program, env : Object::Environment) : Object::Object
     result = nil
 
     program.statements.each do |statement|
       result = eval(statement, env)
 
       case result
-      when Monkey::Object::ReturnValue
+      when Object::ReturnValue
         return result.value
-      when Monkey::Object::Error
+      when Object::Error
         return result
       end
     end
@@ -109,14 +109,14 @@ module Monkey::Evaluator
 
   # Last statement is return value for eval
   # If return statement exists then return for return statement
-  private def self.eval_block_statement(block : Monkey::AST::BlockStatement, env : Monkey::Object::Environment) : Monkey::Object::Object
+  private def self.eval_block_statement(block : AST::BlockStatement, env : Object::Environment) : Object::Object
     result = nil
 
     block.statements.each do |statement|
       result = eval(statement, env)
 
       case result
-      when Monkey::Object::ReturnValue, Monkey::Object::Error
+      when Object::ReturnValue, Object::Error
         return result
       end
     end
@@ -128,7 +128,7 @@ module Monkey::Evaluator
     end
   end
 
-  private def self.eval_prefix_expression(operator : String, right : Monkey::Object::Object) : Monkey::Object::Object
+  private def self.eval_prefix_expression(operator : String, right : Object::Object) : Object::Object
     case operator
     when "!"
       eval_bang_operator_expression(right)
@@ -139,11 +139,11 @@ module Monkey::Evaluator
     end
   end
 
-  private def self.native_bool_to_boolean_object(input : Bool) : Monkey::Object::Object
+  private def self.native_bool_to_boolean_object(input : Bool) : Object::Object
     input ? TRUE : FALSE
   end
 
-  private def self.eval_bang_operator_expression(right : Monkey::Object::Object) : Monkey::Object::Object
+  private def self.eval_bang_operator_expression(right : Object::Object) : Object::Object
     case right
     when TRUE
       FALSE
@@ -156,19 +156,19 @@ module Monkey::Evaluator
     end
   end
 
-  private def self.eval_minus_prefix_operator_expression(right : Monkey::Object::Object) : Monkey::Object::Object
-    if right.is_a?(Monkey::Object::Integer)
-      Monkey::Object::Integer.new(-right.value)
+  private def self.eval_minus_prefix_operator_expression(right : Object::Object) : Object::Object
+    if right.is_a?(Object::Integer)
+      Object::Integer.new(-right.value)
     else
       new_error("unknown operator: -#{right.type}")
     end
   end
 
-  private def self.eval_infix_expression(operator : String, left : Monkey::Object::Object, right : Monkey::Object::Object) : Monkey::Object::Object
+  private def self.eval_infix_expression(operator : String, left : Object::Object, right : Object::Object) : Object::Object
     case {left, right}
-    when {Monkey::Object::Integer, Monkey::Object::Integer}
+    when {Object::Integer, Object::Integer}
       eval_integer_infix_expression(operator, left, right)
-    when {Monkey::Object::String, Monkey::Object::String}
+    when {Object::String, Object::String}
       eval_string_infix_expression(operator, left, right)
     else
       case operator
@@ -186,16 +186,16 @@ module Monkey::Evaluator
     end
   end
 
-  private def self.eval_integer_infix_expression(operator : String, left : Monkey::Object::Integer, right : Monkey::Object::Integer) : Monkey::Object::Object
+  private def self.eval_integer_infix_expression(operator : String, left : Object::Integer, right : Object::Integer) : Object::Object
     case operator
     when "+"
-      Monkey::Object::Integer.new(left.value + right.value)
+      Object::Integer.new(left.value + right.value)
     when "-"
-      Monkey::Object::Integer.new(left.value - right.value)
+      Object::Integer.new(left.value - right.value)
     when "*"
-      Monkey::Object::Integer.new(left.value * right.value)
+      Object::Integer.new(left.value * right.value)
     when "/"
-      Monkey::Object::Integer.new(left.value / right.value)
+      Object::Integer.new(left.value / right.value)
     when "<"
       native_bool_to_boolean_object(left.value < right.value)
     when ">"
@@ -209,13 +209,13 @@ module Monkey::Evaluator
     end
   end
 
-  private def self.eval_string_infix_expression(operator : String, left : Monkey::Object::String, right : Monkey::Object::String) : Monkey::Object::Object
+  private def self.eval_string_infix_expression(operator : String, left : Object::String, right : Object::String) : Object::Object
     return new_error("unknown operator: #{left.type} #{operator} #{right.type}") unless operator == "+"
 
-    Monkey::Object::String.new(left.value + right.value)
+    Object::String.new(left.value + right.value)
   end
 
-  private def self.eval_if_expression(ie : Monkey::AST::IfExpression, env : Monkey::Object::Environment) : Monkey::Object::Object
+  private def self.eval_if_expression(ie : AST::IfExpression, env : Object::Environment) : Object::Object
     condition = eval(ie.condition, env)
     return condition if is_error?(condition)
 
@@ -230,7 +230,7 @@ module Monkey::Evaluator
     end
   end
 
-  private def self.is_truthy?(obj : Monkey::Object::Object) : Bool
+  private def self.is_truthy?(obj : Object::Object) : Bool
     case obj
     when NULL
       false
@@ -243,15 +243,15 @@ module Monkey::Evaluator
     end
   end
 
-  private def self.new_error(message : String) : Monkey::Object::Error
-    Monkey::Object::Error.new(message)
+  private def self.new_error(message : String) : Object::Error
+    Object::Error.new(message)
   end
 
-  private def self.is_error?(obj : Monkey::Object::Object) : Bool
-    obj.is_a?(Monkey::Object::Error)
+  private def self.is_error?(obj : Object::Object) : Bool
+    obj.is_a?(Object::Error)
   end
 
-  private def self.eval_identifier(node : Monkey::AST::Identifier, env : Monkey::Object::Environment) : Monkey::Object::Object
+  private def self.eval_identifier(node : AST::Identifier, env : Object::Environment) : Object::Object
     ident = env[node.value]?
     return ident if ident
 
@@ -261,8 +261,8 @@ module Monkey::Evaluator
     new_error("identifier not found: #{node.value}")
   end
 
-  private def self.eval_expressions(exps : Array(Monkey::AST::Expression), env : Monkey::Object::Environment) : Array(Monkey::Object::Object)
-    result = [] of Monkey::Object::Object
+  private def self.eval_expressions(exps : Array(AST::Expression), env : Object::Environment) : Array(Object::Object)
+    result = [] of Object::Object
 
     exps.each do |exp|
       evaluated = eval(exp, env)
@@ -273,21 +273,21 @@ module Monkey::Evaluator
     result
   end
 
-  private def self.apply_function(fn : Monkey::Object::Object, args : Array(Monkey::Object::Object)) : Monkey::Object::Object
+  private def self.apply_function(fn : Object::Object, args : Array(Object::Object)) : Object::Object
     case fn
-    when Monkey::Object::Function
+    when Object::Function
       extended_env = extend_function_env(fn, args)
       evaluated = eval(fn.body, extended_env)
       unwrap_return_value(evaluated)
-    when Monkey::Object::Builtin
+    when Object::Builtin
       fn.fn.call(args)
     else
       return new_error("not a function: #{fn.type}")
     end
   end
 
-  private def self.extend_function_env(fn : Monkey::Object::Function, args : Array(Monkey::Object::Object)) : Monkey::Object::Environment
-    env = Monkey::Object::Environment.new_enclose(fn.env)
+  private def self.extend_function_env(fn : Object::Function, args : Array(Object::Object)) : Object::Environment
+    env = Object::Environment.new_enclose(fn.env)
 
     fn.parameters.each_with_index do |param, i|
       env[param.value] = args[i]
@@ -296,19 +296,19 @@ module Monkey::Evaluator
     env
   end
 
-  private def self.unwrap_return_value(obj : Monkey::Object::Object) : Monkey::Object::Object
-    obj.is_a?(Monkey::Object::ReturnValue) ? obj.value : obj
+  private def self.unwrap_return_value(obj : Object::Object) : Object::Object
+    obj.is_a?(Object::ReturnValue) ? obj.value : obj
   end
 
-  private def self.eval_index_expression(left : Monkey::Object::Object, index : Object::Object) : Monkey::Object::Object
-    if left.is_a?(Monkey::Object::Array) && index.is_a?(Monkey::Object::Integer)
+  private def self.eval_index_expression(left : Object::Object, index : Object::Object) : Object::Object
+    if left.is_a?(Object::Array) && index.is_a?(Object::Integer)
       eval_array_index_expression(left, index)
     else
       new_error("index operator not supported: #{left.type}")
     end
   end
 
-  private def self.eval_array_index_expression(array : Monkey::Object::Array, index : Monkey::Object::Integer) : Monkey::Object::Object
+  private def self.eval_array_index_expression(array : Object::Array, index : Object::Integer) : Object::Object
     idx = index.value
     max = (array.elements.size - 1).to_i64
 

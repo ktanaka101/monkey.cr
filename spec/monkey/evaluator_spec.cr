@@ -141,8 +141,8 @@ module Monkey::Evaluator
         it "for #{input}" do
           evaluated = test_eval(input)
 
-          evaluated.should be_a Monkey::Object::Error
-          if evaluated.is_a?(Monkey::Object::Error)
+          evaluated.should be_a Object::Error
+          if evaluated.is_a?(Object::Error)
             evaluated.message.should eq expected
           end
         end
@@ -168,8 +168,8 @@ module Monkey::Evaluator
       }.each do |input, expected_params_size, expected_params, expected_body|
         it "for #{input}" do
           evaluated = test_eval(input)
-          evaluated.should be_a Monkey::Object::Function
-          if evaluated.is_a?(Monkey::Object::Function)
+          evaluated.should be_a Object::Function
+          if evaluated.is_a?(Object::Function)
             evaluated.parameters.size.should eq expected_params_size
             evaluated.parameters[0].string.should eq expected_params
             evaluated.body.string.should eq expected_body
@@ -289,8 +289,8 @@ module Monkey::Evaluator
         it "for #{input}" do
           evaluated = test_eval(input)
 
-          evaluated.should be_a Monkey::Object::Array
-          if evaluated.is_a?(Monkey::Object::Array)
+          evaluated.should be_a Object::Array
+          if evaluated.is_a?(Object::Array)
             evaluated.elements.size.should eq expected.size
 
             evaluated.elements.each_with_index do |element, i|

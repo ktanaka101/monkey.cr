@@ -17,7 +17,7 @@ module Monkey::Parser
           stmt = program.statements[0]
           test_let_statement(stmt, expected_identifier)
 
-          if stmt.is_a? Monkey::AST::LetStatement
+          if stmt.is_a? AST::LetStatement
             val = stmt.value
             test_literal_expression(val, expected_value)
           end
@@ -43,19 +43,19 @@ module Monkey::Parser
     end
 
     it "string" do
-      program = Monkey::AST::Program.new([
-        Monkey::AST::LetStatement.new(
-          Monkey::Token::Token.new(Monkey::Token::LET, "let"),
-          Monkey::AST::Identifier.new(
-            Monkey::Token::Token.new(Monkey::Token::IDENT, "myVar"),
+      program = AST::Program.new([
+        AST::LetStatement.new(
+          Token::Token.new(Token::LET, "let"),
+          AST::Identifier.new(
+            Token::Token.new(Token::IDENT, "myVar"),
             "myVar"
           ),
-          Monkey::AST::Identifier.new(
-            Monkey::Token::Token.new(Monkey::Token::IDENT, "anotherVar"),
+          AST::Identifier.new(
+            Token::Token.new(Token::IDENT, "anotherVar"),
             "anotherVar"
           ),
         ),
-      ] of Monkey::AST::Statement)
+      ] of AST::Statement)
 
       program.string.should eq "let myVar = anotherVar;"
     end
@@ -68,8 +68,8 @@ module Monkey::Parser
       program.statements.size.should eq 1
       stmt = program.statements[0]
 
-      stmt.should be_a Monkey::AST::ExpressionStatement
-      if stmt.is_a?(Monkey::AST::ExpressionStatement)
+      stmt.should be_a AST::ExpressionStatement
+      if stmt.is_a?(AST::ExpressionStatement)
         test_literal_expression(stmt.expression, "foobar")
       end
     end
@@ -85,8 +85,8 @@ module Monkey::Parser
           program.statements.size.should eq 1
           stmt = program.statements[0]
 
-          stmt.should be_a Monkey::AST::ExpressionStatement
-          if stmt.is_a?(Monkey::AST::ExpressionStatement)
+          stmt.should be_a AST::ExpressionStatement
+          if stmt.is_a?(AST::ExpressionStatement)
             test_literal_expression(stmt.expression, expected)
           end
         end
@@ -105,8 +105,8 @@ module Monkey::Parser
           program.statements.size.should eq 1
           stmt = program.statements[0]
 
-          stmt.should be_a Monkey::AST::ExpressionStatement
-          if stmt.is_a?(Monkey::AST::ExpressionStatement)
+          stmt.should be_a AST::ExpressionStatement
+          if stmt.is_a?(AST::ExpressionStatement)
             test_literal_expression(stmt.expression, expected)
           end
         end
@@ -127,12 +127,12 @@ module Monkey::Parser
           program.statements.size.should eq 1
 
           stmt = program.statements[0]
-          stmt.should be_a Monkey::AST::ExpressionStatement
-          if stmt.is_a?(Monkey::AST::ExpressionStatement)
+          stmt.should be_a AST::ExpressionStatement
+          if stmt.is_a?(AST::ExpressionStatement)
             exp = stmt.expression
 
-            exp.should be_a Monkey::AST::PrefixExpression
-            if exp.is_a?(Monkey::AST::PrefixExpression)
+            exp.should be_a AST::PrefixExpression
+            if exp.is_a?(AST::PrefixExpression)
               exp.operator.should eq expected_operator
               test_literal_expression(exp.right, expected_value)
             end
@@ -162,8 +162,8 @@ module Monkey::Parser
           program.statements.size.should eq 1
 
           stmt = program.statements[0]
-          stmt.should be_a Monkey::AST::ExpressionStatement
-          if stmt.is_a?(Monkey::AST::ExpressionStatement)
+          stmt.should be_a AST::ExpressionStatement
+          if stmt.is_a?(AST::ExpressionStatement)
             test_infix_expression(stmt.expression, expected_left, expected_operator, expected_right)
           end
         end
@@ -294,17 +294,17 @@ module Monkey::Parser
       program.statements.size.should eq 1
 
       stmt = program.statements[0]
-      stmt.should be_a Monkey::AST::ExpressionStatement
-      if stmt.is_a?(Monkey::AST::ExpressionStatement)
+      stmt.should be_a AST::ExpressionStatement
+      if stmt.is_a?(AST::ExpressionStatement)
         exp = stmt.expression
-        exp.should be_a Monkey::AST::IfExpression
-        if exp.is_a?(Monkey::AST::IfExpression)
+        exp.should be_a AST::IfExpression
+        if exp.is_a?(AST::IfExpression)
           test_infix_expression(exp.condition, "x", "<", "y")
           exp.consequence.statements.size.should eq 1
           consequence = exp.consequence.statements[0]
 
-          consequence.should be_a Monkey::AST::ExpressionStatement
-          if consequence.is_a?(Monkey::AST::ExpressionStatement)
+          consequence.should be_a AST::ExpressionStatement
+          if consequence.is_a?(AST::ExpressionStatement)
             test_indentifier(consequence.expression, "x")
 
             exp.alternative.should be_nil
@@ -324,28 +324,28 @@ module Monkey::Parser
           program.statements.size.should eq 1
 
           stmt = program.statements[0]
-          stmt.should be_a Monkey::AST::ExpressionStatement
-          if stmt.is_a?(Monkey::AST::ExpressionStatement)
+          stmt.should be_a AST::ExpressionStatement
+          if stmt.is_a?(AST::ExpressionStatement)
             exp = stmt.expression
-            exp.should be_a Monkey::AST::IfExpression
-            if exp.is_a?(Monkey::AST::IfExpression)
+            exp.should be_a AST::IfExpression
+            if exp.is_a?(AST::IfExpression)
               test_infix_expression(exp.condition, "x", "<", "y")
               exp.consequence.statements.size.should eq 1
               consequence = exp.consequence.statements[0]
 
-              consequence.should be_a Monkey::AST::ExpressionStatement
-              if consequence.is_a?(Monkey::AST::ExpressionStatement)
+              consequence.should be_a AST::ExpressionStatement
+              if consequence.is_a?(AST::ExpressionStatement)
                 test_indentifier(consequence.expression, "x")
               end
 
               alt = exp.alternative
-              alt.should be_a Monkey::AST::BlockStatement
-              if alt.is_a?(Monkey::AST::BlockStatement)
+              alt.should be_a AST::BlockStatement
+              if alt.is_a?(AST::BlockStatement)
                 alt.statements.size.should eq 1
                 alternative = alt.statements[0]
 
-                alternative.should be_a Monkey::AST::ExpressionStatement
-                if alternative.is_a?(Monkey::AST::ExpressionStatement)
+                alternative.should be_a AST::ExpressionStatement
+                if alternative.is_a?(AST::ExpressionStatement)
                   test_indentifier(alternative.expression, "y")
                 end
               end
@@ -366,11 +366,11 @@ module Monkey::Parser
           program.statements.size.should eq 1
 
           stmt = program.statements[0]
-          stmt.should be_a Monkey::AST::ExpressionStatement
-          if stmt.is_a?(Monkey::AST::ExpressionStatement)
+          stmt.should be_a AST::ExpressionStatement
+          if stmt.is_a?(AST::ExpressionStatement)
             exp = stmt.expression
-            exp.should be_a Monkey::AST::FunctionLiteral
-            if exp.is_a?(Monkey::AST::FunctionLiteral)
+            exp.should be_a AST::FunctionLiteral
+            if exp.is_a?(AST::FunctionLiteral)
               exp.parameters.size.should eq 2
 
               test_literal_expression(exp.parameters[0], "x")
@@ -378,8 +378,8 @@ module Monkey::Parser
 
               exp.body.statements.size.should eq 1
               body_stmt = exp.body.statements[0]
-              body_stmt.should be_a Monkey::AST::ExpressionStatement
-              if body_stmt.is_a?(Monkey::AST::ExpressionStatement)
+              body_stmt.should be_a AST::ExpressionStatement
+              if body_stmt.is_a?(AST::ExpressionStatement)
                 test_infix_expression(body_stmt.expression, "x", "+", "y")
               end
             end
@@ -398,11 +398,11 @@ module Monkey::Parser
           program = test_parse(input)
 
           stmt = program.statements[0]
-          if stmt.is_a?(Monkey::AST::ExpressionStatement)
+          if stmt.is_a?(AST::ExpressionStatement)
             function = stmt.expression
 
-            function.should be_a Monkey::AST::FunctionLiteral
-            if function.is_a?(Monkey::AST::FunctionLiteral)
+            function.should be_a AST::FunctionLiteral
+            if function.is_a?(AST::FunctionLiteral)
               function.parameters.size.should eq expected_params.size
 
               expected_params.each_with_index do |ident, i|
@@ -422,11 +422,11 @@ module Monkey::Parser
       program.statements.size.should eq 1
 
       stmt = program.statements[0]
-      stmt.should be_a Monkey::AST::ExpressionStatement
-      if stmt.is_a?(Monkey::AST::ExpressionStatement)
+      stmt.should be_a AST::ExpressionStatement
+      if stmt.is_a?(AST::ExpressionStatement)
         exp = stmt.expression
-        exp.should be_a Monkey::AST::CallExpression
-        if exp.is_a?(Monkey::AST::CallExpression)
+        exp.should be_a AST::CallExpression
+        if exp.is_a?(AST::CallExpression)
           test_indentifier(exp.function, "add")
           exp.arguments.size.should eq 3
           test_literal_expression(exp.arguments[0], 1)
@@ -444,11 +444,11 @@ module Monkey::Parser
       program.statements.size.should eq 1
       stmt = program.statements[0]
 
-      stmt.should be_a Monkey::AST::ExpressionStatement
-      if stmt.is_a?(Monkey::AST::ExpressionStatement)
+      stmt.should be_a AST::ExpressionStatement
+      if stmt.is_a?(AST::ExpressionStatement)
         literal = stmt.expression
-        literal.should be_a Monkey::AST::StringLiteral
-        if literal.is_a?(Monkey::AST::StringLiteral)
+        literal.should be_a AST::StringLiteral
+        if literal.is_a?(AST::StringLiteral)
           literal.value.should eq "hello world"
         end
       end
@@ -467,11 +467,11 @@ module Monkey::Parser
           program.statements.size.should eq 1
           stmt = program.statements[0]
 
-          stmt.should be_a Monkey::AST::ExpressionStatement
-          if stmt.is_a?(Monkey::AST::ExpressionStatement)
+          stmt.should be_a AST::ExpressionStatement
+          if stmt.is_a?(AST::ExpressionStatement)
             array = stmt.expression
-            array.should be_a Monkey::AST::ArrayLiteral
-            if array.is_a?(Monkey::AST::ArrayLiteral)
+            array.should be_a AST::ArrayLiteral
+            if array.is_a?(AST::ArrayLiteral)
               array.elements.size.should eq 3
               array.elements.each_with_index do |element, i|
                 expect = expected[i]
@@ -500,11 +500,11 @@ module Monkey::Parser
           program.statements.size.should eq 1
           stmt = program.statements[0]
 
-          stmt.should be_a Monkey::AST::ExpressionStatement
-          if stmt.is_a?(Monkey::AST::ExpressionStatement)
+          stmt.should be_a AST::ExpressionStatement
+          if stmt.is_a?(AST::ExpressionStatement)
             index = stmt.expression
-            index.should be_a Monkey::AST::IndexExpression
-            if index.is_a?(Monkey::AST::IndexExpression)
+            index.should be_a AST::IndexExpression
+            if index.is_a?(AST::IndexExpression)
               test_indentifier(index.left, expected[0])
 
               expect = expected[1]

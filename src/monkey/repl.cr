@@ -8,7 +8,7 @@ module Monkey::REPL
   PROMPT = ">> "
 
   def self.start
-    env = Monkey::Object::Environment.new
+    env = Object::Environment.new
 
     while true
       print PROMPT
@@ -25,8 +25,8 @@ module Monkey::REPL
         next
       end
 
-      evaluated = Monkey::Evaluator.eval(program, env)
-      next if evaluated.is_a?(Monkey::Object::Null)
+      evaluated = Evaluator.eval(program, env)
+      next if evaluated.is_a?(Object::Null)
 
       puts "#{evaluated.inspect}\n"
     end
