@@ -368,7 +368,7 @@ def test_object(object : Monkey::Object::Object, expected)
   when TestError
     test_error_object(object, expected)
   else
-    "it test is ".should be_false
+    "#{object}, #{expected} test is ".should be_false
   end
 end
 
