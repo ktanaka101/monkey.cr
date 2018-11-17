@@ -409,20 +409,12 @@ module Monkey::Evaluator
       {
         {
           "[1, 2 * 2, 3 + 3]",
-          {1_i64, 4_i64, 6_i64},
+          [1_i64, 4_i64, 6_i64],
         },
       }.each do |input, expected|
         it "for #{input}" do
           evaluated = test_eval(input)
-
-          evaluated.should be_a Object::Array
-          if evaluated.is_a?(Object::Array)
-            evaluated.elements.size.should eq expected.size
-
-            evaluated.elements.each_with_index do |element, i|
-              test_object(element, expected[i])
-            end
-          end
+          test_object(evaluated, expected)
         end
       end
     end
