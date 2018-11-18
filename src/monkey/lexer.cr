@@ -110,6 +110,8 @@ module Monkey::Lexer
                 Token::Token.new(Token::COMMA, str)
               when ';'
                 Token::Token.new(Token::SEMICOLON, str)
+              when ':'
+                Token::Token.new(Token::COLON, str)
               when '('
                 Token::Token.new(Token::LPAREN, str)
               when ')'

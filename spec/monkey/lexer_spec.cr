@@ -21,6 +21,7 @@ module Monkey::Lexer
         {Token::STRING, "foobar"},
         {Token::STRING, "foo bar"},
         {Token::LBRACKET, "["}, {Token::INT, "1"}, {Token::COMMA, ","}, {Token::INT, "2"}, {Token::RBRACKET, "]"}, {Token::SEMICOLON, ";"},
+        {Token::LBRACE, "{"}, {Token::STRING, "foo"}, {Token::COLON, ":"}, {Token::STRING, "bar"}, {Token::RBRACE, "}"},
         {Token::EOF, ""},
       }
 
@@ -47,6 +48,7 @@ module Monkey::Lexer
         "foobar"
         "foo bar"
         [1, 2];
+        {"foo": "bar"}
       STRING
 
       l = Lexer.new(input)

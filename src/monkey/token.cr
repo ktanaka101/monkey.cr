@@ -36,6 +36,7 @@ module Monkey::Token
   # デリミタ
   COMMA     = ","
   SEMICOLON = ";"
+  COLON     = ":"
 
   LPAREN   = "("
   RPAREN   = ")"
