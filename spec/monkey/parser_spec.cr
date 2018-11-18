@@ -5,10 +5,10 @@ module Monkey::Parser
   describe Parser do
     describe "let statements" do
       {
-        {"let x = 5", "x", 5},
-        {"let x = 5;", "x", 5},
-        {"let y = true;", "y", true},
-        {"let foobar = y;", "foobar", "y"},
+        {"let x = 5", TestIdentifier.new("x"), 5},
+        {"let x = 5;", TestIdentifier.new("x"), 5},
+        {"let y = true;", TestIdentifier.new("y"), true},
+        {"let foobar = y;", TestIdentifier.new("foobar"), TestIdentifier.new("y")},
       }.each do |input, expected_identifier, expected_value|
         it "for #{input}" do
           program = test_parse(input)
@@ -30,7 +30,7 @@ module Monkey::Parser
         {"return 5", 5},
         {"return 5;", 5},
         {"return true;", true},
-        {"return y;", "y"},
+        {"return y;", TestIdentifier.new("y")},
       }.each do |input, expected|
         it "for #{input}" do
           program = test_parse(input)
@@ -70,7 +70,7 @@ module Monkey::Parser
 
       stmt.should be_a AST::ExpressionStatement
       if stmt.is_a?(AST::ExpressionStatement)
-        test_literal_expression(stmt.expression, "foobar")
+        test_literal_expression(stmt.expression, TestIdentifier.new("foobar"))
       end
     end
 
@@ -299,13 +299,13 @@ module Monkey::Parser
         exp = stmt.expression
         exp.should be_a AST::IfExpression
         if exp.is_a?(AST::IfExpression)
-          test_infix_expression(exp.condition, "x", "<", "y")
+          test_infix_expression(exp.condition, TestIdentifier.new("x"), "<", TestIdentifier.new("y"))
           exp.consequence.statements.size.should eq 1
           consequence = exp.consequence.statements[0]
 
           consequence.should be_a AST::ExpressionStatement
           if consequence.is_a?(AST::ExpressionStatement)
-            test_indentifier(consequence.expression, "x")
+            test_indentifier(consequence.expression, TestIdentifier.new("x"))
 
             exp.alternative.should be_nil
           end
@@ -329,13 +329,13 @@ module Monkey::Parser
             exp = stmt.expression
             exp.should be_a AST::IfExpression
             if exp.is_a?(AST::IfExpression)
-              test_infix_expression(exp.condition, "x", "<", "y")
+              test_infix_expression(exp.condition, TestIdentifier.new("x"), "<", TestIdentifier.new("y"))
               exp.consequence.statements.size.should eq 1
               consequence = exp.consequence.statements[0]
 
               consequence.should be_a AST::ExpressionStatement
               if consequence.is_a?(AST::ExpressionStatement)
-                test_indentifier(consequence.expression, "x")
+                test_indentifier(consequence.expression, TestIdentifier.new("x"))
               end
 
               alt = exp.alternative
@@ -346,7 +346,7 @@ module Monkey::Parser
 
                 alternative.should be_a AST::ExpressionStatement
                 if alternative.is_a?(AST::ExpressionStatement)
-                  test_indentifier(alternative.expression, "y")
+                  test_indentifier(alternative.expression, TestIdentifier.new("y"))
                 end
               end
             end
@@ -373,14 +373,14 @@ module Monkey::Parser
             if exp.is_a?(AST::FunctionLiteral)
               exp.parameters.size.should eq 2
 
-              test_literal_expression(exp.parameters[0], "x")
-              test_literal_expression(exp.parameters[1], "y")
+              test_literal_expression(exp.parameters[0], TestIdentifier.new("x"))
+              test_literal_expression(exp.parameters[1], TestIdentifier.new("y"))
 
               exp.body.statements.size.should eq 1
               body_stmt = exp.body.statements[0]
               body_stmt.should be_a AST::ExpressionStatement
               if body_stmt.is_a?(AST::ExpressionStatement)
-                test_infix_expression(body_stmt.expression, "x", "+", "y")
+                test_infix_expression(body_stmt.expression, TestIdentifier.new("x"), "+", TestIdentifier.new("y"))
               end
             end
           end
@@ -390,9 +390,9 @@ module Monkey::Parser
 
     describe "function parameter parsing" do
       {
-        {"fn() {};", [] of String},
-        {"fn(x) {};", ["x"]},
-        {"fn(x, y, z) {};", ["x", "y", "z"]},
+        {"fn() {};", [] of TestIdentifier},
+        {"fn(x) {};", [TestIdentifier.new("x")]},
+        {"fn(x, y, z) {};", [TestIdentifier.new("x"), TestIdentifier.new("y"), TestIdentifier.new("z")]},
       }.each do |input, expected_params|
         it "for #{input}" do
           program = test_parse(input)
@@ -427,7 +427,7 @@ module Monkey::Parser
         exp = stmt.expression
         exp.should be_a AST::CallExpression
         if exp.is_a?(AST::CallExpression)
-          test_indentifier(exp.function, "add")
+          test_indentifier(exp.function, TestIdentifier.new("add"))
           exp.arguments.size.should eq 3
           test_literal_expression(exp.arguments[0], 1)
           test_infix_expression(exp.arguments[1], 2, "*", 3)
@@ -491,7 +491,7 @@ module Monkey::Parser
       {
         {
           "myArray[1 + 1]",
-          {"myArray", {1, "+", 1}},
+          {TestIdentifier.new("myArray"), {1, "+", 1}},
         },
       }.each do |input, expected|
         it "for #{input}" do
@@ -518,8 +518,47 @@ module Monkey::Parser
         end
       end
     end
+
+    describe "parsing hash literal" do
+      {
+        {
+          %({}),
+          {} of String => String, # type is dummy
+        },
+        {
+          %({"one": 1, "two": 2, "three": 3}),
+          {"one" => 1, "two" => 2, "three" => 3},
+        },
+        {
+          %({"one": 0 + 1, "two": 10 - 8, "three": 15 / 5}),
+          {"one" => {0, "+", 1}, "two" => {10, "-", 8}, "three" => {15, "/", 5}},
+        },
+        {
+          %({1: 111, 2: "b", 3: true}),
+          {"1" => 111, "2" => "b", "3" => true},
+        },
+        {
+          %({true: 1, false: "abc"}),
+          {"true" => 1, "false" => "abc"},
+        },
+      }.each do |input, expected|
+        it "for #{input}" do
+          program = test_parse(input)
+
+          program.statements.size.should eq 1
+          stmt = program.statements[0]
+
+          stmt.should be_a AST::ExpressionStatement
+          if stmt.is_a?(AST::ExpressionStatement)
+            test_hash_literal(stmt.expression, expected)
+          end
+        end
+      end
+    end
   end
 end
+
+record TestIdentifier, value : String
 
 def check_parser_errors(parser : Monkey::Parser::Parser)
   errors = parser.errors
@@ -541,12 +580,12 @@ def test_parse(input : String) : Monkey::AST::Program
   program
 end
 
-def test_let_statement(stmt : Monkey::AST::Statement, name : String)
+def test_let_statement(stmt : Monkey::AST::Statement, name : TestIdentifier)
   stmt.should be_a Monkey::AST::LetStatement
   if stmt.is_a?(Monkey::AST::LetStatement)
     stmt.token_literal.should eq "let"
-    stmt.name.value.should eq name
-    stmt.name.token_literal.should eq name
+    stmt.name.value.should eq name.value
+    stmt.name.token_literal.should eq name.value
   end
 end
 
@@ -566,11 +605,11 @@ def test_integer_literal(exp, value : Int64)
   end
 end
 
-def test_indentifier(exp, value : String)
+def test_indentifier(exp, identifier : TestIdentifier)
   exp.should be_a Monkey::AST::Identifier
   if exp.is_a?(Monkey::AST::Identifier)
-    exp.value.should eq value
-    exp.token_literal.should eq value
+    exp.value.should eq identifier.value
+    exp.token_literal.should eq identifier.value
   end
 end
 
@@ -582,6 +621,29 @@ def test_boolean_literal(exp, value : Bool)
   end
 end
 
+def test_string_literal(exp, value : String)
+  exp.should be_a Monkey::AST::StringLiteral
+  if exp.is_a?(Monkey::AST::StringLiteral)
+    exp.value.should eq value
+    exp.token_literal.should eq value.to_s
+  end
+end
+
+def test_hash_literal(exp, expected : Hash)
+  exp.should be_a Monkey::AST::HashLiteral
+  return unless exp.is_a?(Monkey::AST::HashLiteral)
+
+  exp.pairs.size.should eq expected.size
+
+  expected_keys = expected.keys
+  exp.pairs.each_with_index do |(key, value), i|
+    expected_value = expected[key.string]?
+    expected_value.should_not be_nil
+    next if expected_value.nil?
+    test_literal_expression(value, expected_value)
+  end
+end
+
 def test_literal_expression(exp, expected)
   case expected
   when Int32
@@ -589,9 +651,13 @@ def test_literal_expression(exp, expected)
   when Int64
     test_integer_literal(exp, expected)
   when String
+    test_string_literal(exp, expected)
+  when TestIdentifier
     test_indentifier(exp, expected)
   when Bool
     test_boolean_literal(exp, expected)
+  when Tuple
+    test_infix_expression(exp, *expected)
   else
     expected.should eq "type of exp not handled."
   end

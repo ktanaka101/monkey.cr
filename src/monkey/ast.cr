@@ -326,4 +326,27 @@ module Monkey::AST
       "(#{@left.string}[#{@index.string}])"
     end
   end
+
+  class HashLiteral < Expression
+    getter token, pairs
+
+    def initialize(@token : Token::Token, @pairs : Hash(Expression, Expression))
+    end
+
+    def expression_node
+    end
+
+    def token_literal
+      @token.literal
+    end
+
+    def string
+      hs_string = @pairs.map { |key, value|
+        "#{key.string}:#{value.string}"
+      }
+      .join(", ")
+
+      "{#{hs_string}}"
+    end
+  end
 end

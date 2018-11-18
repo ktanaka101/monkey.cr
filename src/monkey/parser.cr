@@ -332,6 +332,31 @@ module Monkey::Parser
       AST::IndexExpression.new(token, left, index)
     end
 
+    def parse_hash_literal : AST::HashLiteral?
+      token = @cur_token
+      hash = {} of AST::Expression => AST::Expression
+
+      until peek_token_is?(Token::RBRACE)
+        next_token
+        key = parse_expression(Priority::LOWEST)
+        return nil if key.nil?
+
+        return nil unless expect_peek?(Token::COLON)
+
+        next_token
+        value = parse_expression(Priority::LOWEST)
+        return nil if value.nil?
+
+        hash[key] = value
+
+        return nil if !peek_token_is?(Token::RBRACE) && !expect_peek?(Token::COMMA)
+      end
+
+      return nil unless expect_peek?(Token::RBRACE)
+
+      AST::HashLiteral.new(token, hash)
+    end
+
     def cur_token_is?(token : Token::TokenType) : Bool
       @cur_token.type == token
     end
@@ -374,6 +399,8 @@ module Monkey::Parser
         ->parse_string_literal
       when Token::LBRACKET
         ->parse_array_literal
+      when Token::LBRACE
+        ->parse_hash_literal
       end
     end
 
