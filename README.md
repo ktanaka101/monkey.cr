@@ -15,8 +15,8 @@ Enjoy Crystal!
 Supported for linux
 
 ```
-git clone git@github.com:KTanaka101/monkey.git
-cd ./monkey/monkey
+git clone https://github.com/KTanaka101/monkey.git
+./monkey/monkey
 ```
 
 ## Contributors
