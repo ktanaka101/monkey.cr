@@ -60,6 +60,12 @@ module Monkey::Evaluator
         Object::Array.new(arr.elements + [args[1]])
       end
     ),
+    "puts" => Object::Builtin.new(
+      Object::BuiltinFunction.new do |args|
+        args.each{ |arg| puts arg.inspect }
+        NULL
+      end
+    )
   }
 
   def self.eval(node : AST::Node, env : Object::Environment) : Object::Object
