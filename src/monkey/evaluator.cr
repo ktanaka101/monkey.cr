@@ -120,6 +120,8 @@ module Monkey::Evaluator
       index = eval(node.index, env)
       return index if is_error?(index)
       eval_index_expression(left, index)
+    when AST::HashLiteral
+      eval_hash_literal(node, env)
     else
       new_error("unknown node: #{node}")
     end
@@ -342,8 +344,11 @@ module Monkey::Evaluator
   end
 
   private def self.eval_index_expression(left : Object::Object, index : Object::Object) : Object::Object
-    if left.is_a?(Object::Array) && index.is_a?(Object::Integer)
+    case {left, index}
+    when {Object::Array, Object::Integer}
       eval_array_index_expression(left, index)
+    when {Object::Hash, _}
+      eval_hash_index_expression(left, index)
     else
       new_error("index operator not supported: #{left.type}")
     end
@@ -356,5 +361,37 @@ module Monkey::Evaluator
     return NULL if idx < 0 || idx > max
 
     array.elements[idx]
+  end
+
+  private def self.eval_hash_literal(node : AST::HashLiteral, env : Object::Environment) : Object::Object
+    pairs = {} of Object::HashKey => Object::HashPair
+
+    node.pairs.each do |(key_node, value_node)|
+      key = eval(key_node, env)
+      return key if is_error?(key)
+
+      value = eval(value_node, env)
+      return value if is_error?(value)
+
+      if key.is_a?(Object::Hashable)
+        hashed = key.hash_key
+        pairs[hashed] = Object::HashPair.new(key, value)
+      else
+        return new_error("unusable as hash key: #{key.type}")
+      end
+    end
+
+    Object::Hash.new(pairs)
+  end
+
+  private def self.eval_hash_index_expression(hash : Object::Hash, key : Object::Object) : Object::Object
+    if key.is_a?(Object::Hashable)
+      pair = hash.pairs[key.hash_key]?
+      return NULL if pair.nil?
+
+      pair.value
+    else
+      new_error("unusable as hash key: #{key.type}")
+    end
   end
 end

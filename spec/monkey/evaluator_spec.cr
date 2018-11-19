@@ -137,6 +137,10 @@ module Monkey::Evaluator
           %("Hello" - "World"),
           "unknown operator: STRING - STRING",
         },
+        {
+          %({"name": "Monkey"}[fn(x) { x }];),
+          "unusable as hash key: FUNCTION"
+        }
       }.each do |input, expected|
         it "for #{input}" do
           evaluated = test_eval(input)
@@ -461,6 +465,89 @@ module Monkey::Evaluator
           "[1, 2, 3][-1]",
           nil,
         },
+      }.each do |input, expected|
+        it "for #{input}" do
+          evaluated = test_eval(input)
+          test_object(evaluated, expected)
+        end
+      end
+    end
+
+    it "string hash key" do
+      hello1 = Object::String.new("Hello World")
+      hello2 = Object::String.new("Hello World")
+      diff1 = Object::String.new("My name is johnny")
+      diff2 = Object::String.new("My name is johnny")
+
+      hello1.hash_key.should eq hello2.hash_key
+      diff1.hash_key.should eq diff2.hash_key
+      hello1.hash_key.should_not eq diff1.hash_key
+    end
+
+    it "hash literals" do
+      input = <<-INPUT
+        let two = "two";
+        {
+          "one": 10 - 9,
+          two: 1 + 1,
+          "thr" + "ee": 6 / 2,
+          4: 4,
+          true: 5,
+          false: 6
+        }
+      INPUT
+      evaluated = test_eval(input)
+      evaluated.should be_a Object::Hash
+      next unless evaluated.is_a? Object::Hash
+
+      expected = {
+        {Object::String.new("one").hash_key, 1_i64},
+        {Object::String.new("two").hash_key, 2_i64},
+        {Object::String.new("three").hash_key, 3_i64},
+        {Object::Integer.new(4).hash_key, 4_i64},
+        {Evaluator::TRUE.hash_key, 5_i64},
+        {Evaluator::FALSE.hash_key, 6_i64},
+      }
+      evaluated.pairs.size.should eq expected.size
+
+      expected.each do |expected_key, expected_value|
+        pair = evaluated.pairs[expected_key]?
+        pair.should_not be_nil
+        next if pair.nil?
+        test_integer_object(pair.value, expected_value)
+      end
+    end
+
+    describe "hash index expressions" do
+      {
+        {
+          %({"foo": 5}["foo"]),
+          5_i64
+        },
+        {
+          %({"foo": 5}["bar"]),
+          nil
+        },
+        {
+          %(let key = "foo"; {"foo": 5}[key]),
+          5_i64
+        },
+        {
+          %({}["foo"]),
+          nil
+        },
+        {
+          %({5: 5}[5]),
+          5_i64
+        },
+        {
+          %({true: 5}[true]),
+          5_i64
+        },
+        {
+          %({false: 5}[false]),
+          5_i64
+        }
       }.each do |input, expected|
         it "for #{input}" do
           evaluated = test_eval(input)

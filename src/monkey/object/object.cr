@@ -11,13 +11,20 @@ module Monkey::Object
   STRING_OBJ       = "STRING"
   BUILTIN_OBJ      = "BUILTIN"
   ARRAY_OBJ        = "ARRAY"
+  HASH_OBJ         = "HASH"
 
   abstract class Object
     abstract def type : ObjectType
     abstract def inspect : ::String
   end
 
+  module Hashable
+    abstract def hash_key : HashKey
+  end
+
   class Integer < Object
+    include Hashable
+
     getter value : Int64
 
     def initialize(@value : Int64)
@@ -30,9 +37,15 @@ module Monkey::Object
     def inspect
       @value.to_s
     end
+
+    def hash_key
+      HashKey.new(self.type, @value.to_u64)
+    end
   end
 
   class Boolean < Object
+    include Hashable
+
     getter value : Bool
 
     def initialize(@value : Bool)
@@ -44,6 +57,10 @@ module Monkey::Object
 
     def inspect
       @value.to_s
+    end
+
+    def hash_key
+      HashKey.new(self.type, @value ? 1_u64 : 0_u64)
     end
   end
 
@@ -103,6 +120,8 @@ module Monkey::Object
   end
 
   class String < Object
+    include Hashable
+
     getter value : ::String
 
     def initialize(@value : ::String)
@@ -114,6 +133,10 @@ module Monkey::Object
 
     def inspect
       @value
+    end
+
+    def hash_key
+      HashKey.new(self.type, @value.hash)
     end
   end
 
@@ -146,4 +169,43 @@ module Monkey::Object
       %([#{@elements.map(&.inspect).join(", ")}])
     end
   end
+
+  class Hash < Object
+    getter pairs
+
+    def initialize(@pairs : ::Hash(HashKey, HashPair))
+    end
+
+    def type
+      HASH_OBJ
+    end
+
+    def inspect
+      hs_string = @pairs.map { |key, value|
+        "#{key.inspect}: #{value.inspect}"
+      }
+        .join(", ")
+
+      "{#{hs_string}}"
+    end
+  end
+
+  class HashKey
+    getter type, value
+
+    def initialize(@type : ::String, @value : UInt64)
+    end
+
+    # Monkey uses #== to compare key of hash.
+    def ==(other : HashKey)
+      hash == other.hash
+    end
+
+    # Crystal uses #hash to compare key of hash.
+    def hash
+      @value
+    end
+  end
+
+  record HashPair, key : Object, value : Object
 end
