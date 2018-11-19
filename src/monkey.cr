@@ -1,6 +1,7 @@
-require "./monkey/lexer"
+require "./monkey/repl"
 
-# My interpreter by crystal
 module Monkey
   VERSION = "0.1.0"
 end
+
+Monkey::REPL.start
