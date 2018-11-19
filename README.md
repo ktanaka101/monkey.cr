@@ -1,29 +1,28 @@
 [![CircleCI](https://circleci.com/gh/KTanaka101/monkey/tree/master.svg?style=shield&circle-token=8f580ec1c7b5a310bcc770d6891142099e40a674)](https://circleci.com/gh/KTanaka101/monkey/tree/master)
 
-# monkey
+# Monkey
 
-My interpreter
+## Summury
 
-## Installation
+Monkey is for [Go 言語でつくるインタプリタ](https://www.oreilly.co.jp/books/9784873118222/)(["Writing An Interpreter in Go"](https://interpreterbook.com/)).
 
-TODO: Write installation instructions here
+In the book the Moneky interpreter is written by Go.
+But in this repository it is written in Crystal.
+Enjoy Crystal!
 
 ## Usage
 
-TODO: Write usage instructions here
+Supported for linux
 
-## Development
-
-TODO: Write development instructions here
-
-## Contributing
-
-1. Fork it (<https://github.com/your-github-user/monkey/fork>)
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+```
+git clone git@github.com:KTanaka101/monkey.git
+cd ./monkey/monkey
+```
 
 ## Contributors
 
 - [KTanaka101](https://github.com/KTanaka101) Kentaro Tanaka - creator, maintainer
+
+## License
+
+MIT
