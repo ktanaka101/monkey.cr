@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/KTanaka101/monkey/tree/master.svg?style=shield&circle-token=8f580ec1c7b5a310bcc770d6891142099e40a674)](https://circleci.com/gh/KTanaka101/monkey/tree/master)
+[![CircleCI](https://circleci.com/gh/ktanaka101/monkey/tree/master.svg?style=shield&circle-token=8f580ec1c7b5a310bcc770d6891142099e40a674)](https://circleci.com/gh/ktanaka101/monkey/tree/master)
 
 # Monkey
 
@@ -15,13 +15,13 @@ Enjoy Crystal!
 Supported for linux
 
 ```
-git clone https://github.com/KTanaka101/monkey.git
+git clone https://github.com/ktanaka101/monkey.git
 ./monkey/monkey
 ```
 
 ## Contributors
 
-- [KTanaka101](https://github.com/KTanaka101) Kentaro Tanaka - creator, maintainer
+- [ktanaka101](https://github.com/ktanaka101) Kentaro Tanaka - creator, maintainer
 
 ## License
 
