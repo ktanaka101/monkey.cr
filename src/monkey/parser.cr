@@ -112,13 +112,14 @@ module Monkey::Parser
     end
 
     def parse_expression(precedende : Priority) : AST::Expression?
-      prefix = prefix_parse_fns(@cur_token.type)
-      if prefix.nil?
+      case @cur_token.type
+      when Token::IDENT, Token::INT, Token::BANG, Token::MINUS, Token::TRUE, Token::FALSE, Token::LPAREN, Token::IF, Token::FUNCTION, Token::STRING, Token::LBRACKET, Token::LBRACE
+      else
         no_prefix_parse_fn_error(@cur_token.type)
         return nil
       end
-      left_exp = prefix.call
 
+      left_exp = prefix_parse_fns(@cur_token.type)
       return nil if left_exp.nil?
 
       while !peek_token_is?(Token::SEMICOLON) && precedende < peek_precedence
@@ -382,25 +383,25 @@ module Monkey::Parser
     def prefix_parse_fns(key : Token::TokenType)
       case key
       when Token::IDENT
-        ->parse_identifier
+        parse_identifier
       when Token::INT
-        ->parse_integer_literal
+        parse_integer_literal
       when Token::BANG, Token::MINUS
-        ->parse_prefix_expression
+        parse_prefix_expression
       when Token::TRUE, Token::FALSE
-        ->parse_bool_literal
+        parse_bool_literal
       when Token::LPAREN
-        ->parse_grouped_expression
+        parse_grouped_expression
       when Token::IF
-        ->parse_if_expression
+        parse_if_expression
       when Token::FUNCTION
-        ->parse_function_literal
+        parse_function_literal
       when Token::STRING
-        ->parse_string_literal
+        parse_string_literal
       when Token::LBRACKET
-        ->parse_array_literal
+        parse_array_literal
       when Token::LBRACE
-        ->parse_hash_literal
+        parse_hash_literal
       end
     end
 
