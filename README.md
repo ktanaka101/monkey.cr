@@ -15,8 +15,15 @@ Enjoy Crystal!
 Supported for linux
 
 ```
-git clone https://github.com/ktanaka101/monkey.git
-./monkey/monkey
+$ git clone https://github.com/ktanaka101/monkey.git
+$ cd monkey
+$ crystal build --release ./src/monkey.cr
+$ ./monkey
+>> 1 + 1
+2
+>> let a = 10
+>> a + 5
+15
 ```
 
 ## Contributors
