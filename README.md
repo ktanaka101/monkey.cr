@@ -1,5 +1,3 @@
-[![CircleCI](https://circleci.com/gh/ktanaka101/monkey/tree/master.svg?style=shield&circle-token=8f580ec1c7b5a310bcc770d6891142099e40a674)](https://circleci.com/gh/ktanaka101/monkey/tree/master)
-
 # Monkey
 
 ## Summury
