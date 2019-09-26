@@ -62,10 +62,10 @@ module Monkey::Evaluator
     ),
     "puts" => Object::Builtin.new(
       Object::BuiltinFunction.new do |args|
-        args.each{ |arg| puts arg.inspect }
+        args.each { |arg| puts arg.inspect }
         NULL
       end
-    )
+    ),
   }
 
   def self.eval(node : AST::Node, env : Object::Environment) : Object::Object
@@ -244,7 +244,7 @@ module Monkey::Evaluator
     when "*"
       Object::Integer.new(left.value * right.value)
     when "/"
-      Object::Integer.new(left.value / right.value)
+      Object::Integer.new(left.value // right.value)
     when "<"
       native_bool_to_boolean_object(left.value < right.value)
     when ">"

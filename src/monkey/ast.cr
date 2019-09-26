@@ -28,7 +28,7 @@ module Monkey::AST
       end
     end
 
-    def string
+    def string : String
       @statements.map(&.string).join
     end
   end
@@ -42,11 +42,11 @@ module Monkey::AST
     def statement_node
     end
 
-    def token_literal
+    def token_literal : String
       @token.literal
     end
 
-    def string
+    def string : String
       expression = @expression
       unless expression.nil?
         expression.string
@@ -65,11 +65,11 @@ module Monkey::AST
     def statement_node
     end
 
-    def token_literal
+    def token_literal : String
       @token.literal
     end
 
-    def string
+    def string : String
       out = "#{token_literal} #{@name.string} = "
 
       value = @value
@@ -89,11 +89,11 @@ module Monkey::AST
     def statement_node
     end
 
-    def token_literal
+    def token_literal : String
       @token.literal
     end
 
-    def string
+    def string : String
       out = "#{token_literal} "
 
       return_value = @return_value
@@ -113,11 +113,11 @@ module Monkey::AST
     def expression_node
     end
 
-    def token_literal
+    def token_literal : String
       @token.literal
     end
 
-    def string
+    def string : String
       @value
     end
   end
@@ -131,11 +131,11 @@ module Monkey::AST
     def expression_node
     end
 
-    def token_literal
+    def token_literal : String
       @token.literal
     end
 
-    def string
+    def string : String
       @token.literal
     end
   end
@@ -149,11 +149,11 @@ module Monkey::AST
     def expression_node
     end
 
-    def token_literal
+    def token_literal : String
       @token.literal
     end
 
-    def string
+    def string : String
       "(#{@operator}#{@right.string})"
     end
   end
@@ -167,11 +167,11 @@ module Monkey::AST
     def expression_node
     end
 
-    def token_literal
+    def token_literal : String
       @token.literal
     end
 
-    def string
+    def string : String
       "(#{@left.string} #{@operator} #{@right.string})"
     end
   end
@@ -185,11 +185,11 @@ module Monkey::AST
     def expression_node
     end
 
-    def token_literal
+    def token_literal : String
       @token.literal
     end
 
-    def string
+    def string : String
       @token.literal
     end
   end
@@ -203,11 +203,11 @@ module Monkey::AST
     def expression_node
     end
 
-    def token_literal
+    def token_literal : String
       @token.literal
     end
 
-    def string
+    def string : String
       s = "if#{@condition.string} #{@consequence.string}"
 
       alternative = @alternative
@@ -228,11 +228,11 @@ module Monkey::AST
     def statement_node
     end
 
-    def token_literal
+    def token_literal : String
       @token.literal
     end
 
-    def string
+    def string : String
       @statements.map(&.string).join
     end
   end
@@ -246,11 +246,11 @@ module Monkey::AST
     def expression_node
     end
 
-    def token_literal
+    def token_literal : String
       @token.literal
     end
 
-    def string
+    def string : String
       "#{token_literal}(#{@parameters.map(&.string).join(", ")}) #{@body.string}"
     end
   end
@@ -264,11 +264,11 @@ module Monkey::AST
     def expression_node
     end
 
-    def token_literal
+    def token_literal : String
       @token.literal
     end
 
-    def string
+    def string : String
       "#{function.string}(#{@arguments.map(&.string).join(", ")})"
     end
   end
@@ -282,11 +282,11 @@ module Monkey::AST
     def expression_node
     end
 
-    def token_literal
+    def token_literal : String
       @token.literal
     end
 
-    def string
+    def string : String
       @token.literal
     end
   end
@@ -300,11 +300,11 @@ module Monkey::AST
     def expression_node
     end
 
-    def token_literal
+    def token_literal : String
       @token.literal
     end
 
-    def string
+    def string : String
       %([#{@elements.map(&.string).join(", ")}])
     end
   end
@@ -318,11 +318,11 @@ module Monkey::AST
     def expression_node
     end
 
-    def token_literal
+    def token_literal : String
       @token.literal
     end
 
-    def string
+    def string : String
       "(#{@left.string}[#{@index.string}])"
     end
   end
@@ -336,15 +336,15 @@ module Monkey::AST
     def expression_node
     end
 
-    def token_literal
+    def token_literal : String
       @token.literal
     end
 
-    def string
+    def string : String
       hs_string = @pairs.map { |key, value|
         "#{key.string}:#{value.string}"
       }
-      .join(", ")
+        .join(", ")
 
       "{#{hs_string}}"
     end

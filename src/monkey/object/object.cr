@@ -30,15 +30,15 @@ module Monkey::Object
     def initialize(@value : Int64)
     end
 
-    def type
+    def type : ObjectType
       INTEGER_OBJ
     end
 
-    def inspect
+    def inspect : ::String
       @value.to_s
     end
 
-    def hash_key
+    def hash_key : HashKey
       HashKey.new(self.type, @value.to_u64)
     end
   end
@@ -51,25 +51,25 @@ module Monkey::Object
     def initialize(@value : Bool)
     end
 
-    def type
+    def type : ObjectType
       BOOLEAN_OBJ
     end
 
-    def inspect
+    def inspect : ::String
       @value.to_s
     end
 
-    def hash_key
+    def hash_key : HashKey
       HashKey.new(self.type, @value ? 1_u64 : 0_u64)
     end
   end
 
   class Null < Object
-    def type
+    def type : ObjectType
       NULL_OBJ
     end
 
-    def inspect
+    def inspect : ::String
       "null"
     end
   end
@@ -80,11 +80,11 @@ module Monkey::Object
     def initialize(@value : Object)
     end
 
-    def type
+    def type : ObjectType
       RETURN_VALUE_OBJ
     end
 
-    def inspect
+    def inspect : ::String
       @value.inspect
     end
   end
@@ -95,11 +95,11 @@ module Monkey::Object
     def initialize(@message : ::String)
     end
 
-    def type
+    def type : ObjectType
       ERROR_OBJ
     end
 
-    def inspect
+    def inspect : ::String
       "ERROR: #{@message}"
     end
   end
@@ -110,11 +110,11 @@ module Monkey::Object
     def initialize(@parameters : ::Array(AST::Identifier), @body : AST::BlockStatement, @env : Environment)
     end
 
-    def type
+    def type : ObjectType
       FUNCTION_OBJ
     end
 
-    def inspect
+    def inspect : ::String
       "fn(#{@parameters.map(&.string).join(", ")}) {\n#{@body.string}\n}"
     end
   end
@@ -127,15 +127,15 @@ module Monkey::Object
     def initialize(@value : ::String)
     end
 
-    def type
+    def type : ObjectType
       STRING_OBJ
     end
 
-    def inspect
+    def inspect : ::String
       @value
     end
 
-    def hash_key
+    def hash_key : HashKey
       HashKey.new(self.type, @value.hash)
     end
   end
@@ -146,11 +146,11 @@ module Monkey::Object
     def initialize(@fn : BuiltinFunction)
     end
 
-    def type
+    def type : ObjectType
       BUILTIN_OBJ
     end
 
-    def inspect
+    def inspect : ::String
       "buildin function"
     end
   end
@@ -161,11 +161,11 @@ module Monkey::Object
     def initialize(@elements : ::Array(Object))
     end
 
-    def type
+    def type : ObjectType
       ARRAY_OBJ
     end
 
-    def inspect
+    def inspect : ::String
       %([#{@elements.map(&.inspect).join(", ")}])
     end
   end
@@ -176,11 +176,11 @@ module Monkey::Object
     def initialize(@pairs : ::Hash(HashKey, HashPair))
     end
 
-    def type
+    def type : ObjectType
       HASH_OBJ
     end
 
-    def inspect
+    def inspect : ::String
       hs_string = @pairs.map { |key, value|
         "#{key.inspect}: #{value.inspect}"
       }

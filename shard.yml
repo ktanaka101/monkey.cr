@@ -8,6 +8,6 @@ targets:
   monkey:
     main: src/monkey.cr
 
-crystal: 0.27.0
+crystal: 0.31.0
 
 license: MIT
