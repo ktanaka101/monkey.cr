@@ -2,7 +2,7 @@
 
 ## Summury
 
-Monkey is for [Go 言語でつくるインタプリタ](https://www.oreilly.co.jp/books/9784873118222/)(["Writing An Interpreter in Go"](https://interpreterbook.com/)).
+Monkey is for ["Writing An Interpreter in Go"](https://interpreterbook.com/).
 
 In the book the Moneky interpreter is written by Go.
 But in this repository it is written in Crystal.
